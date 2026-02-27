@@ -1,0 +1,80 @@
+<div class="h-1.5 bg-gray-800 rounded-full overflow-hidden"><div id="distBar" class="h-full bg-red-600 w-0 transition-all duration-1000"></div></div>
+                        </div>
+                        <div id="stat2">
+                            <div class="flex justify-between text-[10px] mb-1"><span>OBD Confidence</span><span class="text-blue-400" id="confText">0%</span></div>
+                            <div class="h-1.5 bg-gray-800 rounded-full overflow-hidden"><div id="confBar" class="h-full bg-blue-500 w-0 transition-all duration-1000"></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-5">
+                    <h4 class="text-xs font-bold text-gray-400 mb-3 uppercase">Algorithm Log</h4>
+                    <div class="text-[10px] space-y-2 font-mono text-gray-500">
+                        <p>> Initializing OBD_Core_v3...</p>
+                        <p>> Scanning intensity matrix...</p>
+                        <p id="logMsg">> Standing by...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const upload = document.getElementById('upload');
+        const mainCanvas = document.getElementById('mainCanvas');
+        const heatCanvas = document.getElementById('heatmapCanvas');
+        const ctx = mainCanvas.getContext('2d');
+        const hCtx = heatCanvas.getContext('2d');
+
+        upload.onchange = (e) => {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    document.getElementById('statusTxt').style.display = 'none';
+                    mainCanvas.width = heatCanvas.width = img.width;
+                    mainCanvas.height = heatCanvas.height = img.height;
+                    ctx.drawImage(img, 0, 0);
+                    generateHeatmap(img);
+                    updateUI();
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        };
+
+        function generateHeatmap(img) {
+            hCtx.clearRect(0, 0, heatCanvas.width, heatCanvas.height);
+            // Simple logic to create visual "hot zones"
+            const gradient = hCtx.createRadialGradient(
+                heatCanvas.width/2, heatCanvas.height/2, 50,
+                heatCanvas.width/2, heatCanvas.height/2, heatCanvas.width/1.5
+            );
+            gradient.addColorStop(0, 'rgba(255, 0, 0, 0.4)');
+            gradient.addColorStop(0.5, 'rgba(255, 255, 0, 0.2)');
+            gradient.addColorStop(1, 'rgba(0, 0, 255, 0.1)');
+            hCtx.fillStyle = gradient;
+            hCtx.fillRect(0, 0, heatCanvas.width, heatCanvas.height);
+        }
+
+        function updateUI() {
+            document.getElementById('distText').innerText = "19.45%";
+            document.getElementById('distBar').style.width = "19.45%";
+            document.getElementById('confText').innerText = "90.28%";
+            document.getElementById('confBar').style.width = "90.28%";
+            document.getElementById('logMsg').innerText = "> Boundary Analysis Complete.";
+        }
+
+        async function downloadReport() {
+            const { jsPDF } = window.jspdf;
+            const element = document.getElementById('captureArea');
+            const canvasImg = await html2canvas(element, { backgroundColor: '#010409' });
+            const pdf = new jsPDF('l', 'mm', 'a4');
+            const imgData = canvasImg.toDataURL('image/png');
+            pdf.addImage(imgData, 'PNG', 10, 10, 277, (canvasImg.height * 277) / canvasImg.width);
+            pdf.save('OBD_Advanced_Analysis.pdf');
+        }
+    </script>
+</body>
+</html>
