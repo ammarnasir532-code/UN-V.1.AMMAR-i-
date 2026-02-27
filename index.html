@@ -116,7 +116,6 @@
       border-top:1px solid rgba(212,175,55,.2);padding-top:2px;flex-shrink:0
     }
 
-    /* Code blocks */
     .codeblock{
       margin:8px 0;border-radius:14px;overflow:hidden;
       border:1px solid rgba(0,0,0,.10);background:#0b1020;color:#e9eefc;
@@ -322,7 +321,7 @@
         }
       }
 
-      // Show JS errors in chat (so it never "silently" breaks)
+      // Errors to chat
       window.addEventListener('error', (ev) => {
         try{ addMessage('system', `❌ JS Error: ${ev.message}`); }catch(_){}
       });
@@ -348,7 +347,6 @@
 
       uploadBtn.addEventListener('click', () => fileInput.click());
 
-      // ✅ Timeout + Retry + Dynamic tokens (returns message instead of infinite wait)
       async function chatWithAI(message){
         const cacheKey = modelSelect.value + ":" + message;
         if(responseCache.has(cacheKey)) return responseCache.get(cacheKey);
@@ -379,7 +377,6 @@
           if(responseCache.size > 100) responseCache.delete(responseCache.keys().next().value);
           return resp;
         }catch(_){
-          // Retry once fast
           try{
             const retryOpts = { model: modelSelect.value, max_tokens: Math.min(dynamicMaxTokens, 650) };
             if(modelSelect.value !== "deepseek-r1") retryOpts.temperature = 0.7;
@@ -393,7 +390,7 @@
         }
       }
 
-      // Image upload analysis (kept simple and safe)
+      // Image upload analysis
       fileInput.addEventListener('change', async (e) => {
         const file = e.target.files && e.target.files[0];
         if(!file) return;
@@ -408,13 +405,11 @@
               addMessage('system', "⚠️ Puter.ai not available for image analysis.");
               return;
             }
-            // Some environments require message+options only; keep your original signature but handle failures.
             let res;
             try{
               res = await puter.ai.chat("Analyze this image in detail, tell me what you see.", imageData, { model: modelSelect.value });
             }catch(err){
-              // Fallback: send as text only if multimodal isn't supported
-              res = "⚠️ Image analysis not supported in this environment/account. The upload works, but the AI can't read images here.";
+              res = "⚠️ Image analysis not supported in this environment/account.";
             }
             addMessage('assistant', renderContentToHTML(res), true);
           }catch(err){
@@ -429,7 +424,6 @@
         const text = (userInput.value || "").trim();
         if(!text) return;
 
-        // show user message immediately (proves sending works)
         addMessage('user', text);
         userInput.value = "";
         autoGrow();
@@ -439,20 +433,20 @@
           finalText = text + " (please include up-to-date information from the internet if possible)";
         }
 
-        // show "thinking" instantly
-        const thinkingId = "thinking_" + Math.random().toString(36).slice(2);
-        addMessage('system', `Thinking... (${modelSelect.value})`);
+        // ✅ HERE: only "Thinking..." (no model name)
+        addMessage('system', 'Thinking...');
+
         const resp = await chatWithAI(finalText);
         addMessage('assistant', renderContentToHTML(resp), true);
       }
 
-      // ✅ Guaranteed send bindings (prevents "doesn't send")
+      // Guaranteed send bindings
       sendBtn.addEventListener('click', (e)=>{ e.preventDefault(); doSend(); });
       sendBtn.onclick = doSend;
       sendBtn.addEventListener('touchstart', (e)=>{ e.preventDefault(); doSend(); }, {passive:false});
       document.addEventListener('click', (e)=>{ if(e.target && e.target.id === 'sendBtn') doSend(); });
 
-      // ✅ Enter to send (Shift+Enter = new line)
+      // Enter to send (Shift+Enter = newline)
       userInput.addEventListener('keydown', (e) => {
         if(e.key === 'Enter' && !e.shiftKey){
           e.preventDefault();
