@@ -1,714 +1,626 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>AMMAR//i\\CADEMY - Cosmic AI (No Keys)</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AMMAR//i\\CADEMY - Cosmic AI</title>
 
-  <!-- Puter.js (AI without your API keys) -->
+  <!-- Puter.js (for AI) -->
   <script src="https://js.puter.com/v2/"></script>
 
   <style>
-    :root{
-      --bg: #f7f7f8;
-      --panel: #ffffff;
-      --border: rgba(0,0,0,0.08);
-      --text: #0b0f19;
-      --muted: rgba(11,15,25,0.55);
-      --brand: #D4AF37;
+    *{ margin:0; padding:0; box-sizing:border-box; }
 
-      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-
-      --msg-max: 720px;
-      --base: 15.5px;
-      --line: 1.55;
-
-      --radius: 14px;
-      --shadow: 0 1px 10px rgba(0,0,0,0.06);
-
-      --code-bg: #0b1020;
-      --code-fg: #e9eefc;
-      --code-border: rgba(255,255,255,0.12);
-      --code-muted: rgba(233,238,252,0.65);
-      --code-accent: rgba(212,175,55,0.55);
-    }
-
-    *{ box-sizing:border-box; margin:0; padding:0; }
-    html,body{ height:100%; }
     body{
-      font-family: var(--font);
-      background: var(--bg);
-      color: var(--text);
+      font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background:#f0ebe1;
+      color:#1e1e2e;
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      padding:0;
     }
 
-    .app{
-      height:100%;
+    .container{
+      width:100vw;
+      height:100vh;
+      background:rgba(255,255,255,0.85);
+      backdrop-filter:blur(10px);
+      border-radius:0;
+      padding:0;
+      box-shadow:none;
+      border:none;
       display:flex;
       flex-direction:column;
+    }
+
+    .brand{ text-align:center; margin:4px auto 2px auto; }
+    .brand .gold{
+      color:#D4AF37;
+      font-size:1rem;
+      font-weight:700;
+      letter-spacing:0.5px;
+      text-shadow:0 2px 4px rgba(0,0,0,0.1);
+    }
+    .brand .sub{
+      color:#5a5a7a;
+      font-size:0.6rem;
+      font-weight:400;
+      text-shadow:0 1px 2px rgba(0,0,0,0.05);
+      margin-top:1px;
     }
 
     header{
-      position:sticky;
-      top:0;
-      z-index:5;
-      background: linear-gradient(to bottom, rgba(247,247,248,0.98), rgba(247,247,248,0.85));
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid var(--border);
-    }
-
-    .topbar{
-      max-width: calc(var(--msg-max) + 80px);
-      margin: 0 auto;
-      padding: 10px 14px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-    }
-
-    .brand{
-      display:flex;
-      flex-direction:column;
-      gap:2px;
-      user-select:none;
-    }
-    .brand .title{
-      font-weight:800;
-      letter-spacing:0.4px;
-      font-size: 14px;
-      color: var(--brand);
-    }
-    .brand .sub{
-      font-size: 11px;
-      color: var(--muted);
-    }
-
-    .controls{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-    }
-
-    .chip{
-      border:1px solid var(--border);
-      background: rgba(255,255,255,0.7);
-      box-shadow: 0 1px 6px rgba(0,0,0,0.04);
-      border-radius: 999px;
-      padding: 6px 10px;
-      font-size: 12px;
-      color: var(--text);
-      cursor:pointer;
-      transition: 0.15s ease;
-      user-select:none;
-      display:flex;
-      align-items:center;
-      gap:6px;
-    }
-    .chip:hover{ transform: translateY(-1px); }
-    .chip.active{
-      border-color: rgba(212,175,55,0.45);
-      background: rgba(212,175,55,0.12);
-    }
-
-    select{
-      border:1px solid var(--border);
-      border-radius: 999px;
-      padding: 6px 10px;
-      font-size: 12px;
-      background: rgba(255,255,255,0.9);
-      cursor:pointer;
-      outline:none;
-    }
-
-    main{
-      flex:1;
-      overflow:auto;
-      padding: 18px 12px 120px;
-    }
-
-    .timeline{
-      max-width: var(--msg-max);
-      margin: 0 auto;
-      display:flex;
-      flex-direction:column;
-      gap:14px;
-    }
-
-    .row{
-      display:flex;
-      gap:12px;
-    }
-    .row.user{ justify-content:flex-end; }
-    .row.assistant{ justify-content:flex-start; }
-    .row.system{ justify-content:center; }
-
-    .bubble{
-      max-width: 100%;
-      width: fit-content;
-      background: var(--panel);
-      border:1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 10px 12px;
-    }
-
-    .row.user .bubble{
-      background: #fffdf6;
-      border-color: rgba(212,175,55,0.25);
-    }
-    .row.system .bubble{
-      background: rgba(212,175,55,0.13);
-      border-color: rgba(212,175,55,0.25);
       text-align:center;
+      flex-shrink:0;
+      margin-bottom:0;
     }
 
-    .content{
-      font-size: var(--base);
-      line-height: var(--line);
-      white-space: normal;
-      word-break: break-word;
-    }
-    .content p{ margin: 0.35rem 0; }
-    .content ul{ margin: 0.4rem 0 0.4rem 1.2rem; }
-    .content ol{ margin: 0.4rem 0 0.4rem 1.2rem; }
-    .content li{ margin: 0.25rem 0; }
-
-    .content code{
-      font-family: var(--mono);
-      font-size: 13.5px;
-      background: rgba(0,0,0,0.04);
-      border: 1px solid rgba(0,0,0,0.06);
-      border-radius: 8px;
-      padding: 0 6px;
-    }
-
-    /* Code blocks (ChatGPT-ish) */
-    .codeblock{
-      margin: 10px 0;
-      border-radius: 14px;
-      border: 1px solid var(--code-border);
+    .chat-container{
+      display:flex;
+      flex-direction:column;
+      flex:1;
+      min-height:0;
       overflow:hidden;
-      background: var(--code-bg);
-      box-shadow: 0 1px 10px rgba(0,0,0,0.12);
+    }
+
+    .chat-messages{
+      flex:1;
+      overflow-y:auto;
+      padding:15px;
+      min-height:0;
+      box-shadow: inset 0 0 20px rgba(255,255,255,0.6), 0 4px 15px rgba(0,0,0,0.05);
+      background: rgba(255,255,255,0.3);
+      border-radius:20px 20px 0 0;
+      margin:0 5px;
+    }
+
+    .message{
+      margin-bottom:10px;
+      display:flex;
+      flex-direction:column;
+      position:relative;
+    }
+    .message.user{ align-items:flex-end; }
+    .message.assistant{ align-items:flex-start; }
+    .message.system{ align-items:center; }
+
+    .message .content-wrapper{
+      display:flex;
+      flex-direction:column;
+      align-items:flex-start;
+      max-width:80%;
+    }
+    .message.user .content-wrapper{ align-items:flex-end; }
+
+    .message .content{
+      padding:6px 12px;
+      border-radius:15px;
+      color:#1e1e2e;
+      font-size:0.85em;
+      line-height:1.35;
+      box-shadow: 0 2px 8px rgba(255,255,255,0.5), 0 2px 5px rgba(0,0,0,0.05);
+      border:1px solid rgba(255,215,0,0.2);
+      word-break:break-word;
+    }
+    .message.user .content{ background: rgba(255,255,240,0.7); }
+    .message.assistant .content{ background: rgba(255,255,240,0.9); }
+    .message.system .content{ background: rgba(249,226,175,0.9); }
+
+    .copy-under{
+      background: rgba(255,255,255,0.5);
+      border:none;
+      border-radius:8px;
+      box-shadow:0 2px 4px rgba(0,0,0,0.1);
+      cursor:pointer;
+      font-size:0.7rem;
+      padding:2px 8px;
+      margin-top:4px;
+      color:#333;
+      transition:0.2s;
+      display:inline-block;
+    }
+    .copy-under:hover{
+      background: rgba(255,255,255,0.8);
+      box-shadow:0 4px 8px rgba(0,0,0,0.15);
+    }
+    .copy-under.copied{
+      background:#4CAF50;
+      color:white;
+      box-shadow:none;
+    }
+
+    .message .time{
+      font-size:0.55em;
+      color:#5a5a7a;
+      margin-top:3px;
+      margin-left:5px;
+    }
+
+    .input-frame{
+      margin-left:0.5cm;
+      margin-right:0.5cm;
+      height:4cm;
+      background: rgba(255,255,255,0.6);
+      border:1px solid rgba(255,215,0,0.3);
+      border-radius:20px;
+      backdrop-filter:blur(5px);
+      padding:6px 10px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      box-shadow: 0 8px 20px rgba(255,255,255,0.3), 0 2px 5px rgba(0,0,0,0.05);
+      margin-bottom:5px;
+    }
+
+    .input-row{
+      display:flex;
+      align-items:center;
+      gap:5px;
+    }
+
+    .input-row textarea{
+      flex:1;
+      padding:6px 10px;
+      border-radius:20px;
+      border:2px solid rgba(212,175,55,0.6);
+      background:white;
+      color:#1e1e2e;
+      font-size:0.95em; /* أقرب لشات جي بي تي */
+      resize:none;
+      font-family:inherit;
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.03), 0 2px 5px rgba(255,215,0,0.1);
+      height:1.8cm;
+      min-height:1.8cm;
+      line-height:1.45;
+    }
+
+    .circle-send{
+      width:38px;
+      height:38px;
+      border-radius:50%;
+      background:white;
+      border:2px solid #D4AF37;
+      box-shadow:0 4px 10px rgba(212,175,55,0.2);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:1.8rem;
+      cursor:pointer;
+      transition:0.2s;
+      color:#D4AF37;
+      flex-shrink:0;
+      line-height:1;
+    }
+    .circle-send:hover{
+      background: rgba(212,175,55,0.1);
+      transform: scale(1.05);
+    }
+
+    .compact-row{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .upload-icon-small{
+      background:none;
+      border:none;
+      font-size:1.1rem;
+      cursor:pointer;
+      color:#2d2d3a;
+      transition:0.2s;
+      padding:0 3px;
+    }
+    .upload-icon-small:hover{ color:#D4AF37; }
+
+    .small-btn{
+      background: rgba(255,255,255,0.9);
+      border:2px solid #D4AF37;
+      border-radius:30px;
+      padding:3px 10px;
+      font-size:0.75rem;
+      font-weight:600;
+      color:#1e1e2e;
+      cursor:pointer;
+      transition:0.2s;
+      box-shadow:0 4px 8px rgba(212,175,55,0.1);
+      backdrop-filter:blur(4px);
+      white-space:nowrap;
+    }
+    .small-btn:hover{
+      background: rgba(212,175,55,0.15);
+      transform: translateY(-2px);
+    }
+    .small-btn.active{
+      background: rgba(212,175,55,0.25);
+      border-color:#b8860b;
+    }
+
+    .model-selector select{
+      padding:3px 8px;
+      border-radius:20px;
+      border:1px solid #D4AF37;
+      background:white;
+      color:#1e1e2e;
+      font-size:0.7rem;
+      cursor:pointer;
+    }
+
+    .hidden-check{ display:none; }
+
+    footer{
+      text-align:center;
+      margin-top:2px;
+      color:#5a5a7a;
+      font-size:0.6rem;
+      border-top:1px solid rgba(212,175,55,0.2);
+      padding-top:2px;
+      flex-shrink:0;
+    }
+
+    /* ====== ChatGPT-like code blocks inside bubbles ====== */
+    .codeblock{
+      margin:8px 0;
+      border-radius:14px;
+      overflow:hidden;
+      border:1px solid rgba(0,0,0,0.10);
+      background:#0b1020;
+      color:#e9eefc;
+      box-shadow:0 6px 14px rgba(0,0,0,0.12);
     }
     .codebar{
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap:10px;
-      padding: 8px 10px;
-      background: rgba(255,255,255,0.04);
-      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding:8px 10px;
+      background: rgba(255,255,255,0.06);
+      border-bottom:1px solid rgba(255,255,255,0.10);
       user-select:none;
     }
     .codebar .lang{
-      font-family: var(--mono);
-      font-size: 12px;
-      color: var(--code-muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size:12px;
+      color: rgba(233,238,252,0.75);
       display:flex;
       align-items:center;
       gap:8px;
     }
     .codebar .dot{
-      width:7px; height:7px; border-radius:999px;
-      background: rgba(212,175,55,0.8);
-      box-shadow: 0 0 0 3px rgba(212,175,55,0.15);
-    }
-    .codebar .actions{
-      display:flex;
-      align-items:center;
-      gap:8px;
+      width:7px;
+      height:7px;
+      border-radius:999px;
+      background: rgba(212,175,55,0.9);
+      box-shadow: 0 0 0 3px rgba(212,175,55,0.18);
     }
     .codebtn{
-      border: 1px solid rgba(255,255,255,0.14);
-      background: rgba(255,255,255,0.06);
-      color: var(--code-fg);
-      font-size: 12px;
-      padding: 6px 10px;
-      border-radius: 10px;
+      border:1px solid rgba(255,255,255,0.16);
+      background: rgba(255,255,255,0.08);
+      color:#e9eefc;
+      font-size:12px;
+      padding:6px 10px;
+      border-radius:10px;
       cursor:pointer;
-      transition: 0.15s ease;
+      transition:0.15s;
     }
-    .codebtn:hover{ background: rgba(255,255,255,0.10); transform: translateY(-1px); }
+    .codebtn:hover{ background: rgba(255,255,255,0.12); transform: translateY(-1px); }
     .codebtn.copied{
-      border-color: rgba(34,197,94,0.55);
-      background: rgba(34,197,94,0.14);
-      color: #bbf7d0;
+      border-color: rgba(34,197,94,0.60);
+      background: rgba(34,197,94,0.16);
+      color:#bbf7d0;
       transform:none;
     }
-
     pre{
-      margin: 0;
-      padding: 12px;
+      margin:0;
+      padding:12px;
       overflow:auto;
-      white-space: pre;
-      color: var(--code-fg);
-      font-family: var(--mono);
-      font-size: 13px;
-      line-height: 1.45;
-    }
-    pre code{
-      color: inherit;
-      background: transparent;
-      border: none;
-      padding:0;
-      font-family: inherit;
-      font-size: inherit;
-    }
-
-    /* tiny syntax highlighting (no libs) */
-    .hl-comment{ color: rgba(148,163,184,0.9); }
-    .hl-string{ color: rgba(253,186,116,0.95); }
-    .hl-keyword{ color: rgba(125,211,252,0.95); }
-    .hl-number{ color: rgba(134,239,172,0.95); }
-    .hl-fn{ color: rgba(196,181,253,0.95); }
-    .hl-op{ color: rgba(226,232,240,0.8); }
-
-    .content a{
-      color: #2563eb;
-      text-decoration: none;
-      border-bottom: 1px solid rgba(37,99,235,0.35);
-    }
-    .content a:hover{ border-bottom-color:#2563eb; }
-
-    .meta{
-      margin-top: 6px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      color: var(--muted);
-      font-size: 11px;
-      user-select:none;
-    }
-    .copy{
-      border:none;
-      background: transparent;
-      color: var(--muted);
-      cursor:pointer;
-      padding: 2px 6px;
-      border-radius: 8px;
-      transition: 0.15s ease;
-    }
-    .copy:hover{
-      background: rgba(0,0,0,0.04);
-      color: var(--text);
-    }
-    .copy.copied{
-      background: rgba(34,197,94,0.18);
-      color: #166534;
-    }
-
-    footer{
-      position:fixed;
-      left:0; right:0; bottom:0;
-      background: linear-gradient(to top, rgba(247,247,248,0.98), rgba(247,247,248,0.85));
-      backdrop-filter: blur(10px);
-      border-top: 1px solid var(--border);
-      padding: 10px 10px 14px;
-      z-index:10;
-    }
-
-    .composer{
-      max-width: calc(var(--msg-max) + 80px);
-      margin: 0 auto;
-      display:flex;
-      gap:10px;
-      align-items:flex-end;
-      padding: 0 4px;
-    }
-
-    .box{
-      flex:1;
-      background: var(--panel);
-      border:1px solid var(--border);
-      border-radius: 16px;
-      box-shadow: var(--shadow);
-      padding: 10px 10px 8px;
-      display:flex;
-      flex-direction:column;
-      gap:8px;
-    }
-
-    textarea{
-      width:100%;
-      border:none;
-      outline:none;
-      resize:none;
-      font-family: var(--font);
-      font-size: var(--base);
-      line-height: var(--line);
-      background: transparent;
-      color: var(--text);
-      min-height: 24px;
-      max-height: 180px;
-      overflow:auto;
-    }
-    textarea::placeholder{ color: rgba(11,15,25,0.4); }
-
-    .composer-row{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-    }
-
-    .left-tools, .right-tools{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      flex-wrap:wrap;
-    }
-
-    .iconbtn{
-      width:36px; height:36px;
-      border-radius: 999px;
-      border:1px solid var(--border);
-      background: rgba(255,255,255,0.95);
-      cursor:pointer;
-      box-shadow: 0 1px 6px rgba(0,0,0,0.04);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      transition: 0.15s ease;
-      font-size: 16px;
-    }
-    .iconbtn:hover{ transform: translateY(-1px); }
-    .send{
-      width:40px; height:40px;
-      border-radius: 999px;
-      border: 1px solid rgba(212,175,55,0.55);
-      background: rgba(212,175,55,0.15);
-      cursor:pointer;
-      box-shadow: 0 1px 10px rgba(0,0,0,0.06);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size: 18px;
-      color: #7a5b00;
-      transition: 0.15s ease;
-    }
-    .send:hover{ transform: translateY(-1px) scale(1.02); }
-
-    .smallnote{
-      font-size: 11px;
-      color: var(--muted);
-      padding: 0 6px 0 6px;
-      user-select:none;
-    }
-
-    .hidden{ display:none !important; }
-
-    @media (max-width: 520px){
-      :root{ --base: 15px; }
-      .topbar{ padding: 10px 10px; }
-      main{ padding: 14px 10px 130px; }
-      .composer{ padding: 0 2px; }
+      white-space:pre;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size:13px;
+      line-height:1.45;
     }
   </style>
 </head>
 
 <body>
-  <div class="app">
+  <div class="container">
     <header>
-      <div class="topbar">
-        <div class="brand">
-          <div class="title">AMMAR//i\\CADEMY</div>
-          <div class="sub">No keys • Memory + Web Learn (RAG) • Code-capable</div>
-        </div>
-
-        <div class="controls">
-          <button id="toggleSearch" class="chip" title="Real web search (no keys)">🔎 Search</button>
-          <button id="toggleVoice" class="chip" title="Read assistant replies aloud">🔊 Voice</button>
-          <button id="toggleStrong" class="chip active" title="Stronger: multi-attempt + refine + strict">⚡ Strong</button>
-
-          <select id="modelSelect" title="Pick model">
-            <option value="deepseek-r1" selected>DeepSeek R1</option>
-            <option value="gpt-5-nano">GPT-5 Nano</option>
-            <option value="claude-opus-4">Claude Opus 4</option>
-            <option value="gemini-2.0-pro">Gemini 2.0 Pro</option>
-          </select>
-        </div>
+      <div class="brand">
+        <div class="gold">AMMAR//i\\CADEMY</div>
+        <div class="sub">Ammar Nasir Hussein al-mantafji 2026</div>
       </div>
     </header>
 
-    <main>
-      <div id="timeline" class="timeline"></div>
-    </main>
+    <div class="chat-container">
+      <div class="chat-messages" id="chatMessages"></div>
 
-    <footer>
-      <div class="composer">
-        <div class="box">
-          <textarea id="input" placeholder="Message..." rows="1"></textarea>
-          <div class="composer-row">
-            <div class="left-tools">
-              <button id="uploadBtn" class="iconbtn" title="Upload image/file">📎</button>
-              <button id="clearBtn" class="iconbtn" title="Clear local memory">🧹</button>
-              <span class="smallnote" id="statusNote">Ready</span>
-            </div>
-            <div class="right-tools">
-              <button id="sendBtn" class="send" title="Send">↑</button>
-            </div>
+      <div class="input-frame">
+        <input type="checkbox" id="voiceOutput" class="hidden-check">
+        <input type="checkbox" id="imageMode" class="hidden-check">
+        <input type="checkbox" id="internetSearch" class="hidden-check">
+
+        <div class="input-row">
+          <textarea id="userInput" placeholder="Type your message here..." rows="1"></textarea>
+          <button class="circle-send" id="sendBtn" type="button">↑</button>
+        </div>
+
+        <div class="compact-row">
+          <button class="upload-icon-small" id="uploadBtn" title="Upload image">📎</button>
+          <button class="small-btn" id="deepThinkBtn">DeepThink</button>
+          <button class="small-btn" id="searchBtn">Search</button>
+          <div class="model-selector">
+            <select id="modelSelect">
+              <option value="gpt-5-nano">GPT-5 Nano</option>
+              <option value="claude-opus-4">Claude Opus 4</option>
+              <option value="gemini-2.0-pro">Gemini 2.0 Pro</option>
+              <option value="deepseek-r1" selected>DeepSeek R1</option>
+            </select>
           </div>
         </div>
-        <input id="fileInput" type="file" class="hidden" accept="image/*"/>
+
+        <input type="file" id="fileInput" accept="image/*" style="display:none;">
       </div>
-    </footer>
+    </div>
+
+    <footer>⚡ No API keys • Puter.js + Pollinations.ai • to infinity ✨</footer>
   </div>
 
-<script>
-/* =========================
-   0) Helpers
-========================= */
-const $ = (id) => document.getElementById(id);
+  <script>
+    // Wrap everything to prevent one error from killing the whole app
+    (function(){
+      const chatMessages = document.getElementById('chatMessages');
+      const userInput = document.getElementById('userInput');
+      const sendBtn = document.getElementById('sendBtn');
+      const voiceOutput = document.getElementById('voiceOutput');
+      const imageMode = document.getElementById('imageMode');
+      const internetSearch = document.getElementById('internetSearch');
+      const modelSelect = document.getElementById('modelSelect');
+      const uploadBtn = document.getElementById('uploadBtn');
+      const fileInput = document.getElementById('fileInput');
+      const deepThinkBtn = document.getElementById('deepThinkBtn');
+      const searchBtn = document.getElementById('searchBtn');
 
-const timeline = $("timeline");
-const input = $("input");
-const sendBtn = $("sendBtn");
-const uploadBtn = $("uploadBtn");
-const fileInput = $("fileInput");
-const clearBtn = $("clearBtn");
-const statusNote = $("statusNote");
+      let deepThinkActive = false;
+      let searchActive = false;
 
-const toggleSearch = $("toggleSearch");
-const toggleVoice  = $("toggleVoice");
-const toggleStrong = $("toggleStrong");
-const modelSelect  = $("modelSelect");
+      // Cache for faster learning (prompt-level cache)
+      const responseCache = new Map();
 
-let searchOn = false;
-let voiceOn = false;
-let strongOn = true;
+      function autoGrow(){
+        userInput.style.height = "auto";
+        userInput.style.height = Math.min(userInput.scrollHeight, 140) + "px";
+      }
+      userInput.addEventListener("input", autoGrow);
 
-toggleSearch.addEventListener("click", () => {
-  searchOn = !searchOn;
-  toggleSearch.classList.toggle("active", searchOn);
-  statusNote.textContent = searchOn ? "Web search: ON" : "Web search: OFF";
-});
-toggleVoice.addEventListener("click", () => {
-  voiceOn = !voiceOn;
-  toggleVoice.classList.toggle("active", voiceOn);
-  statusNote.textContent = voiceOn ? "Voice: ON" : "Voice: OFF";
-});
-toggleStrong.addEventListener("click", () => {
-  strongOn = !strongOn;
-  toggleStrong.classList.toggle("active", strongOn);
-  statusNote.textContent = strongOn ? "Strong mode: ON" : "Strong mode: OFF";
-});
-
-/* Auto-grow textarea like ChatGPT */
-function autoGrow(el){
-  el.style.height = "auto";
-  el.style.height = Math.min(el.scrollHeight, 180) + "px";
-}
-input.addEventListener("input", () => autoGrow(input));
-
-function timeNow(){
-  const d = new Date();
-  return d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
-}
-
-function escapeHtml(str){
-  return String(str ?? "")
-    .replace(/&/g,"&amp;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;")
-    .replace(/"/g,"&quot;")
-    .replace(/'/g,"&#039;");
-}
-
-/* =========================
-   0.5) Code rendering with header + Copy button + tiny highlighting
-========================= */
-function guessLang(codeText){
-  const s = codeText.trim();
-  if(/^<!doctype html>|^<html/i.test(s)) return "html";
-  if(/\b(function|const|let|=>|document\.getElementById|addEventListener)\b/.test(s)) return "javascript";
-  if(/\b(def |import |print\(|class )\b/.test(s)) return "python";
-  if(/\b#include\b|\bint main\b/.test(s)) return "cpp";
-  if(/\bSELECT\b|\bFROM\b|\bWHERE\b/i.test(s)) return "sql";
-  if(/\bpackage\b|\bfunc\b|\bimport\b/.test(s) && /\bgo\b/i.test(s)) return "go";
-  return "code";
-}
-
-function highlightTiny(code, lang){
-  // NOTE: lightweight heuristics only (no library)
-  let s = escapeHtml(code);
-
-  // comments
-  if(lang === "python"){
-    s = s.replace(/(^|\n)\s*#.*(?=\n|$)/g, (m)=>`<span class="hl-comment">${m}</span>`);
-  }
-  if(lang === "javascript" || lang === "html" || lang === "code"){
-    s = s.replace(/\/\/.*(?=\n|$)/g, (m)=>`<span class="hl-comment">${escapeHtml(m)}</span>`);
-    s = s.replace(/\/\*[\s\S]*?\*\//g, (m)=>`<span class="hl-comment">${escapeHtml(m)}</span>`);
-  }
-
-  // strings
-  s = s.replace(/("([^"\\]|\\.)*"|'([^'\\]|\\.)*')/g, (m)=>`<span class="hl-string">${m}</span>`);
-
-  // numbers
-  s = s.replace(/\b(\d+(\.\d+)?)\b/g, `<span class="hl-number">$1</span>`);
-
-  // keywords
-  const kw = {
-    javascript: ["function","const","let","var","return","async","await","if","else","for","while","try","catch","throw","new","class"],
-    python: ["def","class","return","import","from","as","if","elif","else","for","while","try","except","raise","with","lambda"],
-    html: ["html","head","body","script","style","div","span","button","input","textarea","main","header","footer","meta","link"],
-    sql: ["select","from","where","group","by","order","limit","join","left","right","inner","outer","on","and","or","insert","update","delete"],
-    code: ["function","const","let","return","if","else","for","while","class","def","import"]
-  };
-  const list = kw[lang] || kw.code;
-  const re = new RegExp(`\\b(${list.join("|")})\\b`, "gi");
-  s = s.replace(re, `<span class="hl-keyword">$1</span>`);
-
-  // naive function names: foo(
-  s = s.replace(/\b([a-zA-Z_]\w*)\s*(?=\()/g, `<span class="hl-fn">$1</span>`);
-
-  // operators
-  s = s.replace(/(\=\>|\=\=|\!\=|\+\+|\-\-|\+|\-|\*|\/|\%|\=|\<|\>)/g, `<span class="hl-op">$1</span>`);
-
-  return s;
-}
-
-function buildCodeBlock(codeText, langLabel){
-  const lang = (langLabel && langLabel.trim()) ? langLabel.trim().toLowerCase() : guessLang(codeText);
-  const wrap = document.createElement("div");
-  wrap.className = "codeblock";
-
-  const bar = document.createElement("div");
-  bar.className = "codebar";
-
-  const left = document.createElement("div");
-  left.className = "lang";
-  left.innerHTML = `<span class="dot"></span><span>${escapeHtml(lang)}</span>`;
-
-  const actions = document.createElement("div");
-  actions.className = "actions";
-
-  const copy = document.createElement("button");
-  copy.className = "codebtn";
-  copy.textContent = "Copy code";
-
-  copy.onclick = async () => {
-    try{
-      await navigator.clipboard.writeText(codeText);
-      copy.classList.add("copied");
-      copy.textContent = "Copied";
-      setTimeout(()=>{ copy.classList.remove("copied"); copy.textContent="Copy code"; }, 1500);
-    }catch(_){}
-  };
-
-  const download = document.createElement("button");
-  download.className = "codebtn";
-  download.textContent = "Download";
-
-  download.onclick = () => {
-    const extMap = { html:"html", javascript:"js", python:"py", sql:"sql", cpp:"cpp", code:"txt" };
-    const ext = extMap[lang] || "txt";
-    const blob = new Blob([codeText], { type: "text/plain;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `ammari_code.${ext}`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-  };
-
-  actions.appendChild(copy);
-  actions.appendChild(download);
-
-  bar.appendChild(left);
-  bar.appendChild(actions);
-
-  const pre = document.createElement("pre");
-  const code = document.createElement("code");
-  code.innerHTML = highlightTiny(codeText, lang);
-  pre.appendChild(code);
-
-  wrap.appendChild(bar);
-  wrap.appendChild(pre);
-
-  return wrap;
-}
-
-/* Markdown renderer:
-   - supports ```lang ... ```
-   - adds code blocks with header + copy + download
-   - supports inline code, bullets, links, basic bold/italic
-*/
-function renderMarkdownToNodes(text){
-  const raw = String(text ?? "");
-  const frag = document.createDocumentFragment();
-
-  // Split by triple backticks, keep code parts
-  const parts = raw.split(/```/g);
-
-  for(let i=0;i<parts.length;i++){
-    if(i % 2 === 1){
-      // code segment: may start with "lang\n"
-      const seg = parts[i];
-      const m = seg.match(/^([a-zA-Z0-9_+-]+)\n([\s\S]*)$/);
-      const lang = m ? m[1] : "";
-      const codeText = (m ? m[2] : seg).replace(/\n$/, "");
-      frag.appendChild(buildCodeBlock(codeText, lang));
-    } else {
-      // text segment
-      let s = escapeHtml(parts[i]);
-
-      // links markdown: [text](url)
-      s = s.replace(/([^]+)\](https?:\/\/[^\s)]+)/g, `<a href="$2" target="_blank" rel="noopener">$1</a>`);
-      // bare urls
-      s = s.replace(/(https?:\/\/[^\s<]+)/g, `<a href="$1" target="_blank" rel="noopener">$1</a>`);
-      // inline code
-      s = s.replace(/`([^`]+)`/g, `<code>$1</code>`);
-      // bold/italic
-      s = s.replace(/\*\*([^*]+)\*\*/g, `<strong>$1</strong>`);
-      s = s.replace(/\*([^*]+)\*/g, `<em>$1</em>`);
-
-      const lines = s.split("\n");
-      let ul = null;
-
-      const flushUL = () => {
-        if(ul){ frag.appendChild(ul); ul = null; }
+      // Copy function
+      window.copyText = function(element, text) {
+        navigator.clipboard.writeText(text).then(() => {
+          element.classList.add('copied');
+          element.textContent = '✓ copied';
+          setTimeout(() => {
+            element.classList.remove('copied');
+            element.textContent = 'copy';
+          }, 1500);
+        }).catch(() => {
+          alert('Failed to copy text');
+        });
       };
 
-      for(const line of lines){
-        const lm = line.match(/^\s*(?:-|\u2022)\s+(.*)$/);
-        if(lm){
-          if(!ul){ ul = document.createElement("ul"); }
-          const li = document.createElement("li");
-          li.innerHTML = lm[1];
-          ul.appendChild(li);
+      function speakText(text) {
+        try{
+          const utterance = new SpeechSynthesisUtterance(text);
+          utterance.lang = 'en-US';
+          utterance.rate = 1;
+          utterance.pitch = 1;
+          speechSynthesis.speak(utterance);
+        }catch(_){}
+      }
+
+      // ===== Code block renderer (adds Copy code buttons) =====
+      function escapeHtml(s){
+        return String(s??"")
+          .replace(/&/g,"&amp;")
+          .replace(/</g,"&lt;")
+          .replace(/>/g,"&gt;")
+          .replace(/"/g,"&quot;")
+          .replace(/'/g,"&#039;");
+      }
+
+      function guessLang(code){
+        const t = code.trim();
+        if(/^<!doctype html>|^<html/i.test(t)) return "html";
+        if(/\b(function|const|let|=>|document\.getElementById|addEventListener)\b/.test(t)) return "javascript";
+        if(/\b(def |import |print\(|class )\b/.test(t)) return "python";
+        return "code";
+      }
+
+      function renderContentToHTML(text){
+        const raw = String(text ?? "");
+        const parts = raw.split(/```/g);
+        let html = "";
+
+        for(let i=0;i<parts.length;i++){
+          if(i % 2 === 1){
+            const seg = parts[i];
+            const m = seg.match(/^([a-zA-Z0-9_+-]+)\n([\s\S]*)$/);
+            const lang = (m ? m[1] : guessLang(seg)).toLowerCase();
+            const code = (m ? m[2] : seg).replace(/\n$/, "");
+
+            const safeCode = escapeHtml(code);
+
+            const id = "cb_" + Math.random().toString(36).slice(2);
+            html += `
+              <div class="codeblock" data-code-id="${id}">
+                <div class="codebar">
+                  <div class="lang"><span class="dot"></span><span>${escapeHtml(lang)}</span></div>
+                  <button class="codebtn" onclick="(function(btn){
+                    const root = btn.closest('.codeblock');
+                    const pre = root.querySelector('pre');
+                    const txt = pre ? pre.innerText : '';
+                    navigator.clipboard.writeText(txt).then(()=>{
+                      btn.classList.add('copied'); btn.textContent='Copied';
+                      setTimeout(()=>{ btn.classList.remove('copied'); btn.textContent='Copy code'; }, 1200);
+                    }).catch(()=>{ btn.textContent='Failed'; setTimeout(()=>btn.textContent='Copy code',1200); });
+                  })(this)">Copy code</button>
+                </div>
+                <pre><code>${safeCode}</code></pre>
+              </div>
+            `;
+          } else {
+            // normal text, keep line breaks
+            const safe = escapeHtml(parts[i]).replace(/\n/g, "<br>");
+            html += safe;
+          }
+        }
+        return html;
+      }
+
+      function addMessage(role, content, isHtml = false) {
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `message ${role}`;
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'content-wrapper';
+
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'content';
+
+        if (isHtml) contentDiv.innerHTML = content;
+        else contentDiv.textContent = content;
+
+        wrapper.appendChild(contentDiv);
+
+        const copyUnder = document.createElement('span');
+        copyUnder.className = 'copy-under';
+        copyUnder.textContent = 'copy';
+        copyUnder.onclick = function() {
+          const txt = contentDiv.innerText || contentDiv.textContent || "";
+          copyText(this, txt);
+        };
+        wrapper.appendChild(copyUnder);
+
+        msgDiv.appendChild(wrapper);
+
+        const timeSpan = document.createElement('span');
+        timeSpan.className = 'time';
+        const now = new Date();
+        timeSpan.textContent = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        msgDiv.appendChild(timeSpan);
+
+        chatMessages.appendChild(msgDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        if (role === 'assistant' && voiceOutput.checked) speakText(contentDiv.innerText);
+      }
+
+      // Buttons
+      deepThinkBtn.addEventListener('click', () => {
+        deepThinkActive = !deepThinkActive;
+        if (deepThinkActive) {
+          modelSelect.value = 'deepseek-r1';
+          deepThinkBtn.classList.add('active');
         } else {
-          flushUL();
-          const p = document.createElement("p");
-          p.innerHTML = line.trim().length ? line : "";
-          frag.appendChild(p);
+          modelSelect.value = 'gpt-5-nano';
+          deepThinkBtn.classList.remove('active');
+        }
+      });
+
+      searchBtn.addEventListener('click', () => {
+        searchActive = !searchActive;
+        internetSearch.checked = searchActive;
+        searchBtn.classList.toggle('active', searchActive);
+      });
+
+      uploadBtn.addEventListener('click', () => fileInput.click());
+
+      async function chatWithAI(message) {
+        const cacheKey = modelSelect.value + ":" + message;
+        if (responseCache.has(cacheKey)) return responseCache.get(cacheKey);
+
+        // If puter isn't ready, show a clear error
+        if (!window.puter || !puter.ai || !puter.ai.chat) {
+          throw new Error("Puter.ai not available. Check internet / script loading.");
+        }
+
+        const options = { model: modelSelect.value, max_tokens: 1000 };
+        if (modelSelect.value !== 'deepseek-r1') options.temperature = 0.7;
+
+        const response = await puter.ai.chat(message, options);
+
+        responseCache.set(cacheKey, response);
+        if (responseCache.size > 100) {
+          const firstKey = responseCache.keys().next().value;
+          responseCache.delete(firstKey);
+        }
+        return response;
+      }
+
+      // Image analyze (keep your original approach)
+      fileInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+          const imageData = event.target.result;
+          addMessage('user', '📷 [Image uploaded]');
+
+          try {
+            const response = await puter.ai.chat(
+              "Analyze this image in detail, tell me what you see.",
+              imageData,
+              { model: modelSelect.value }
+            );
+            // render as HTML so code blocks show nicely if returned
+            addMessage('assistant', renderContentToHTML(response), true);
+          } catch (error) {
+            addMessage('system', `❌ Error analyzing image: ${error?.message || String(error)}`);
+          }
+        };
+        reader.readAsDataURL(file);
+        e.target.value = "";
+      });
+
+      async function doSend(){
+        const text = userInput.value.trim();
+        if (!text && !imageMode.checked) return;
+
+        // Always show the user message first (so sending "works" even if AI fails)
+        addMessage('user', text || "[empty]");
+        userInput.value = '';
+        autoGrow();
+
+        try{
+          let finalText = text;
+          if (internetSearch.checked) {
+            finalText = text + " (please include up-to-date information from the internet if possible)";
+          }
+          const response = await chatWithAI(finalText);
+          // render assistant with code blocks
+          addMessage('assistant', renderContentToHTML(response), true);
+        }catch(error){
+          addMessage('system', `❌ Connection error: ${error?.message || String(error)}`);
         }
       }
-      flushUL();
-    }
-  }
-  return frag;
-}
 
-function speak(text){
-  if(!voiceOn) return;
-  try{
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(String(text||""));
-    u.lang = "en-US";
-    u.rate = 1;
-    u.pitch = 1;
-    speechSynthesis.speak(u);
-  }catch(_){}
-}
+      // ✅ FIX: robust sending
+      sendBtn.addEventListener('click', doSend);
 
-function addMessage(role, text){
-  const row = document.createElement("div");
-  row.classN
+      // ✅ Keep your original shortcut: Ctrl+Enter
+      userInput.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.key === 'Enter') {
+          e.preventDefault();
+          doSend();
+        }
+      });
+
+      // Welcome
+      addMessage('system', 'Welcome to the infinite space! Try sending a message. Ctrl+Enter to send.');
+    })();
+  </script>
+</body>
+  </html>
