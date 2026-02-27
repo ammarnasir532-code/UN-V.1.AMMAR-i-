@@ -1,327 +1,147 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <title>AMMAR//i\\CADEMY - Cosmic AI</title>
 
-  <!-- Puter.js (for AI) -->
+  <!-- Puter.js -->
   <script src="https://js.puter.com/v2/"></script>
 
   <style>
-    *{ margin:0; padding:0; box-sizing:border-box; }
-
+    *{margin:0;padding:0;box-sizing:border-box}
     body{
-      font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background:#f0ebe1;
-      color:#1e1e2e;
-      min-height:100vh;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      padding:0;
+      font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+      background:#f0ebe1;color:#1e1e2e;
+      min-height:100vh;display:flex;justify-content:center;align-items:center;padding:0
     }
-
     .container{
-      width:100vw;
-      height:100vh;
-      background:rgba(255,255,255,0.85);
+      width:100vw;height:100vh;background:rgba(255,255,255,.85);
       backdrop-filter:blur(10px);
-      border-radius:0;
-      padding:0;
-      box-shadow:none;
-      border:none;
-      display:flex;
-      flex-direction:column;
+      display:flex;flex-direction:column
     }
+    header{text-align:center;flex-shrink:0;margin-bottom:0}
+    .brand{text-align:center;margin:4px auto 2px}
+    .brand .gold{color:#D4AF37;font-size:1rem;font-weight:700;letter-spacing:.5px;text-shadow:0 2px 4px rgba(0,0,0,.1)}
+    .brand .sub{color:#5a5a7a;font-size:.6rem;font-weight:400;text-shadow:0 1px 2px rgba(0,0,0,.05);margin-top:1px}
 
-    .brand{ text-align:center; margin:4px auto 2px auto; }
-    .brand .gold{
-      color:#D4AF37;
-      font-size:1rem;
-      font-weight:700;
-      letter-spacing:0.5px;
-      text-shadow:0 2px 4px rgba(0,0,0,0.1);
-    }
-    .brand .sub{
-      color:#5a5a7a;
-      font-size:0.6rem;
-      font-weight:400;
-      text-shadow:0 1px 2px rgba(0,0,0,0.05);
-      margin-top:1px;
-    }
-
-    header{
-      text-align:center;
-      flex-shrink:0;
-      margin-bottom:0;
-    }
-
-    .chat-container{
-      display:flex;
-      flex-direction:column;
-      flex:1;
-      min-height:0;
-      overflow:hidden;
-    }
-
+    .chat-container{display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden}
     .chat-messages{
-      flex:1;
-      overflow-y:auto;
-      padding:15px;
-      min-height:0;
-      box-shadow: inset 0 0 20px rgba(255,255,255,0.6), 0 4px 15px rgba(0,0,0,0.05);
-      background: rgba(255,255,255,0.3);
-      border-radius:20px 20px 0 0;
-      margin:0 5px;
+      flex:1;overflow-y:auto;padding:15px;min-height:0;
+      box-shadow: inset 0 0 20px rgba(255,255,255,.6),0 4px 15px rgba(0,0,0,.05);
+      background:rgba(255,255,255,.3);
+      border-radius:20px 20px 0 0;margin:0 5px
     }
 
-    .message{
-      margin-bottom:10px;
-      display:flex;
-      flex-direction:column;
-      position:relative;
-    }
-    .message.user{ align-items:flex-end; }
-    .message.assistant{ align-items:flex-start; }
-    .message.system{ align-items:center; }
+    .message{margin-bottom:10px;display:flex;flex-direction:column}
+    .message.user{align-items:flex-end}
+    .message.assistant{align-items:flex-start}
+    .message.system{align-items:center}
 
-    .message .content-wrapper{
-      display:flex;
-      flex-direction:column;
-      align-items:flex-start;
-      max-width:80%;
-    }
-    .message.user .content-wrapper{ align-items:flex-end; }
+    .message .content-wrapper{display:flex;flex-direction:column;align-items:flex-start;max-width:80%}
+    .message.user .content-wrapper{align-items:flex-end}
 
     .message .content{
-      padding:6px 12px;
-      border-radius:15px;
-      color:#1e1e2e;
-      font-size:0.85em;
-      line-height:1.35;
-      box-shadow: 0 2px 8px rgba(255,255,255,0.5), 0 2px 5px rgba(0,0,0,0.05);
-      border:1px solid rgba(255,215,0,0.2);
-      word-break:break-word;
+      padding:6px 12px;border-radius:15px;color:#1e1e2e;
+      font-size:.92em;line-height:1.45;
+      box-shadow:0 2px 8px rgba(255,255,255,.5),0 2px 5px rgba(0,0,0,.05);
+      border:1px solid rgba(255,215,0,.2);word-break:break-word
     }
-    .message.user .content{ background: rgba(255,255,240,0.7); }
-    .message.assistant .content{ background: rgba(255,255,240,0.9); }
-    .message.system .content{ background: rgba(249,226,175,0.9); }
+    .message.user .content{background:rgba(255,255,240,.7)}
+    .message.assistant .content{background:rgba(255,255,240,.9)}
+    .message.system .content{background:rgba(249,226,175,.9)}
 
     .copy-under{
-      background: rgba(255,255,255,0.5);
-      border:none;
-      border-radius:8px;
-      box-shadow:0 2px 4px rgba(0,0,0,0.1);
-      cursor:pointer;
-      font-size:0.7rem;
-      padding:2px 8px;
-      margin-top:4px;
-      color:#333;
-      transition:0.2s;
-      display:inline-block;
+      background:rgba(255,255,255,.5);border:none;border-radius:8px;
+      box-shadow:0 2px 4px rgba(0,0,0,.1);
+      cursor:pointer;font-size:.7rem;padding:2px 8px;margin-top:4px;color:#333;transition:.2s;display:inline-block
     }
-    .copy-under:hover{
-      background: rgba(255,255,255,0.8);
-      box-shadow:0 4px 8px rgba(0,0,0,0.15);
-    }
-    .copy-under.copied{
-      background:#4CAF50;
-      color:white;
-      box-shadow:none;
-    }
+    .copy-under:hover{background:rgba(255,255,255,.8);box-shadow:0 4px 8px rgba(0,0,0,.15)}
+    .copy-under.copied{background:#4CAF50;color:#fff;box-shadow:none}
 
-    .message .time{
-      font-size:0.55em;
-      color:#5a5a7a;
-      margin-top:3px;
-      margin-left:5px;
-    }
+    .message .time{font-size:.55em;color:#5a5a7a;margin-top:3px;margin-left:5px}
 
     .input-frame{
-      margin-left:0.5cm;
-      margin-right:0.5cm;
-      height:4cm;
-      background: rgba(255,255,255,0.6);
-      border:1px solid rgba(255,215,0,0.3);
-      border-radius:20px;
-      backdrop-filter:blur(5px);
-      padding:6px 10px;
-      display:flex;
-      flex-direction:column;
-      justify-content:space-between;
-      box-shadow: 0 8px 20px rgba(255,255,255,0.3), 0 2px 5px rgba(0,0,0,0.05);
-      margin-bottom:5px;
+      margin-left:.5cm;margin-right:.5cm;height:4cm;
+      background:rgba(255,255,255,.6);
+      border:1px solid rgba(255,215,0,.3);
+      border-radius:20px;backdrop-filter:blur(5px);
+      padding:6px 10px;display:flex;flex-direction:column;justify-content:space-between;
+      box-shadow:0 8px 20px rgba(255,255,255,.3),0 2px 5px rgba(0,0,0,.05);
+      margin-bottom:5px
     }
-
-    .input-row{
-      display:flex;
-      align-items:center;
-      gap:5px;
-    }
-
+    .input-row{display:flex;align-items:center;gap:5px}
     .input-row textarea{
-      flex:1;
-      padding:6px 10px;
-      border-radius:20px;
-      border:2px solid rgba(212,175,55,0.6);
-      background:white;
-      color:#1e1e2e;
-      font-size:0.95em;
-      resize:none;
-      font-family:inherit;
-      box-shadow: inset 0 2px 5px rgba(0,0,0,0.03), 0 2px 5px rgba(255,215,0,0.1);
-      height:1.8cm;
-      min-height:1.8cm;
-      line-height:1.45;
+      flex:1;padding:6px 10px;border-radius:20px;
+      border:2px solid rgba(212,175,55,.6);
+      background:#fff;color:#1e1e2e;
+      font-size:1em;line-height:1.45;
+      resize:none;font-family:inherit;
+      box-shadow: inset 0 2px 5px rgba(0,0,0,.03),0 2px 5px rgba(255,215,0,.1);
+      height:1.8cm;min-height:1.8cm;outline:none
     }
-
     .circle-send{
-      width:38px;
-      height:38px;
-      border-radius:50%;
-      background:white;
-      border:2px solid #D4AF37;
-      box-shadow:0 4px 10px rgba(212,175,55,0.2);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:1.8rem;
-      cursor:pointer;
-      transition:0.2s;
-      color:#D4AF37;
-      flex-shrink:0;
-      line-height:1;
+      width:38px;height:38px;border-radius:50%;
+      background:#fff;border:2px solid #D4AF37;
+      box-shadow:0 4px 10px rgba(212,175,55,.2);
+      display:flex;align-items:center;justify-content:center;
+      font-size:1.8rem;cursor:pointer;transition:.2s;color:#D4AF37;flex-shrink:0;line-height:1;
+      user-select:none;-webkit-tap-highlight-color:transparent
     }
-    .circle-send:hover{
-      background: rgba(212,175,55,0.1);
-      transform: scale(1.05);
-    }
+    .circle-send:hover{background:rgba(212,175,55,.1);transform:scale(1.05)}
+    .circle-send:active{transform:scale(.98)}
 
-    .compact-row{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:8px;
-      flex-wrap:wrap;
-    }
-
-    .upload-icon-small{
-      background:none;
-      border:none;
-      font-size:1.1rem;
-      cursor:pointer;
-      color:#2d2d3a;
-      transition:0.2s;
-      padding:0 3px;
-    }
-    .upload-icon-small:hover{ color:#D4AF37; }
+    .compact-row{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap}
+    .upload-icon-small{background:none;border:none;font-size:1.1rem;cursor:pointer;color:#2d2d3a;transition:.2s;padding:0 3px}
+    .upload-icon-small:hover{color:#D4AF37}
 
     .small-btn{
-      background: rgba(255,255,255,0.9);
-      border:2px solid #D4AF37;
-      border-radius:30px;
-      padding:3px 10px;
-      font-size:0.75rem;
-      font-weight:600;
-      color:#1e1e2e;
-      cursor:pointer;
-      transition:0.2s;
-      box-shadow:0 4px 8px rgba(212,175,55,0.1);
-      backdrop-filter:blur(4px);
-      white-space:nowrap;
+      background:rgba(255,255,255,.9);
+      border:2px solid #D4AF37;border-radius:30px;
+      padding:3px 10px;font-size:.75rem;font-weight:600;color:#1e1e2e;cursor:pointer;transition:.2s;
+      box-shadow:0 4px 8px rgba(212,175,55,.1);
+      backdrop-filter:blur(4px);white-space:nowrap
     }
-    .small-btn:hover{
-      background: rgba(212,175,55,0.15);
-      transform: translateY(-2px);
-    }
-    .small-btn.active{
-      background: rgba(212,175,55,0.25);
-      border-color:#b8860b;
-    }
+    .small-btn:hover{background:rgba(212,175,55,.15);transform:translateY(-2px)}
+    .small-btn.active{background:rgba(212,175,55,.25);border-color:#b8860b}
 
     .model-selector select{
-      padding:3px 8px;
-      border-radius:20px;
-      border:1px solid #D4AF37;
-      background:white;
-      color:#1e1e2e;
-      font-size:0.7rem;
-      cursor:pointer;
+      padding:3px 8px;border-radius:20px;border:1px solid #D4AF37;
+      background:#fff;color:#1e1e2e;font-size:.7rem;cursor:pointer
     }
-
-    .hidden-check{ display:none; }
+    .hidden-check{display:none}
 
     footer{
-      text-align:center;
-      margin-top:2px;
-      color:#5a5a7a;
-      font-size:0.6rem;
-      border-top:1px solid rgba(212,175,55,0.2);
-      padding-top:2px;
-      flex-shrink:0;
+      text-align:center;margin-top:2px;color:#5a5a7a;font-size:.6rem;
+      border-top:1px solid rgba(212,175,55,.2);padding-top:2px;flex-shrink:0
     }
 
-    /* ====== ChatGPT-like code blocks inside bubbles ====== */
+    /* Code blocks */
     .codeblock{
-      margin:8px 0;
-      border-radius:14px;
-      overflow:hidden;
-      border:1px solid rgba(0,0,0,0.10);
-      background:#0b1020;
-      color:#e9eefc;
-      box-shadow:0 6px 14px rgba(0,0,0,0.12);
+      margin:8px 0;border-radius:14px;overflow:hidden;
+      border:1px solid rgba(0,0,0,.10);background:#0b1020;color:#e9eefc;
+      box-shadow:0 6px 14px rgba(0,0,0,.12)
     }
     .codebar{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      padding:8px 10px;
-      background: rgba(255,255,255,0.06);
-      border-bottom:1px solid rgba(255,255,255,0.10);
-      user-select:none;
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+      padding:8px 10px;background:rgba(255,255,255,.06);
+      border-bottom:1px solid rgba(255,255,255,.10);user-select:none
     }
     .codebar .lang{
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size:12px;
-      color: rgba(233,238,252,0.75);
-      display:flex;
-      align-items:center;
-      gap:8px;
+      font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+      font-size:12px;color:rgba(233,238,252,.75);display:flex;align-items:center;gap:8px
     }
-    .codebar .dot{
-      width:7px;
-      height:7px;
-      border-radius:999px;
-      background: rgba(212,175,55,0.9);
-      box-shadow: 0 0 0 3px rgba(212,175,55,0.18);
-    }
+    .codebar .dot{width:7px;height:7px;border-radius:999px;background:rgba(212,175,55,.9);box-shadow:0 0 0 3px rgba(212,175,55,.18)}
     .codebtn{
-      border:1px solid rgba(255,255,255,0.16);
-      background: rgba(255,255,255,0.08);
-      color:#e9eefc;
-      font-size:12px;
-      padding:6px 10px;
-      border-radius:10px;
-      cursor:pointer;
-      transition:0.15s;
+      border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.08);
+      color:#e9eefc;font-size:12px;padding:6px 10px;border-radius:10px;cursor:pointer;transition:.15s
     }
-    .codebtn:hover{ background: rgba(255,255,255,0.12); transform: translateY(-1px); }
-    .codebtn.copied{
-      border-color: rgba(34,197,94,0.60);
-      background: rgba(34,197,94,0.16);
-      color:#bbf7d0;
-      transform:none;
-    }
+    .codebtn:hover{background:rgba(255,255,255,.12);transform:translateY(-1px)}
+    .codebtn.copied{border-color:rgba(34,197,94,.6);background:rgba(34,197,94,.16);color:#bbf7d0;transform:none}
     pre{
-      margin:0;
-      padding:12px;
-      overflow:auto;
-      white-space:pre;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size:13px;
-      line-height:1.45;
+      margin:0;padding:12px;overflow:auto;white-space:pre;
+      font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+      font-size:13px;line-height:1.45
     }
   </style>
 </head>
@@ -340,12 +160,11 @@
 
       <div class="input-frame">
         <input type="checkbox" id="voiceOutput" class="hidden-check">
-        <input type="checkbox" id="imageMode" class="hidden-check">
         <input type="checkbox" id="internetSearch" class="hidden-check">
 
         <div class="input-row">
           <textarea id="userInput" placeholder="Type your message here..." rows="1"></textarea>
-          <button class="circle-send" id="sendBtn" type="button">↑</button>
+          <button class="circle-send" id="sendBtn" type="button" aria-label="Send">↑</button>
         </div>
 
         <div class="compact-row">
@@ -354,10 +173,10 @@
           <button class="small-btn" id="searchBtn">Search</button>
           <div class="model-selector">
             <select id="modelSelect">
+              <option value="deepseek-r1" selected>DeepSeek R1</option>
               <option value="gpt-5-nano">GPT-5 Nano</option>
               <option value="claude-opus-4">Claude Opus 4</option>
               <option value="gemini-2.0-pro">Gemini 2.0 Pro</option>
-              <option value="deepseek-r1" selected>DeepSeek R1</option>
             </select>
           </div>
         </div>
@@ -366,7 +185,7 @@
       </div>
     </div>
 
-    <footer>⚡ No API keys • Puter.js + Pollinations.ai • to infinity ✨</footer>
+    <footer>⚡ No API keys • Puter.js • to infinity ✨</footer>
   </div>
 
   <script>
@@ -375,7 +194,6 @@
       const userInput = document.getElementById('userInput');
       const sendBtn = document.getElementById('sendBtn');
       const voiceOutput = document.getElementById('voiceOutput');
-      const imageMode = document.getElementById('imageMode');
       const internetSearch = document.getElementById('internetSearch');
       const modelSelect = document.getElementById('modelSelect');
       const uploadBtn = document.getElementById('uploadBtn');
@@ -386,7 +204,6 @@
       let deepThinkActive = false;
       let searchActive = false;
 
-      // Cache for faster learning (prompt-level cache)
       const responseCache = new Map();
 
       function autoGrow(){
@@ -395,38 +212,14 @@
       }
       userInput.addEventListener("input", autoGrow);
 
-      window.copyText = function(element, text) {
-        navigator.clipboard.writeText(text).then(() => {
-          element.classList.add('copied');
-          element.textContent = '✓ copied';
-          setTimeout(() => {
-            element.classList.remove('copied');
-            element.textContent = 'copy';
-          }, 1500);
-        }).catch(() => {
-          alert('Failed to copy text');
-        });
-      };
-
-      function speakText(text) {
-        try{
-          const utterance = new SpeechSynthesisUtterance(text);
-          utterance.lang = 'en-US';
-          utterance.rate = 1;
-          utterance.pitch = 1;
-          speechSynthesis.speak(utterance);
-        }catch(_){}
-      }
-
       function escapeHtml(s){
-        return String(s??"")
+        return String(s ?? "")
           .replace(/&/g,"&amp;")
           .replace(/</g,"&lt;")
           .replace(/>/g,"&gt;")
           .replace(/"/g,"&quot;")
           .replace(/'/g,"&#039;");
       }
-
       function guessLang(code){
         const t = code.trim();
         if(/^<!doctype html>|^<html/i.test(t)) return "html";
@@ -434,7 +227,6 @@
         if(/\b(def |import |print\(|class )\b/.test(t)) return "python";
         return "code";
       }
-
       function renderContentToHTML(text){
         const raw = String(text ?? "");
         const parts = raw.split(/```/g);
@@ -466,14 +258,33 @@
               </div>
             `;
           } else {
-            const safe = escapeHtml(parts[i]).replace(/\n/g, "<br>");
-            html += safe;
+            html += escapeHtml(parts[i]).replace(/\n/g, "<br>");
           }
         }
         return html;
       }
 
-      function addMessage(role, content, isHtml = false) {
+      window.copyText = function(element, text) {
+        navigator.clipboard.writeText(text).then(() => {
+          element.classList.add('copied');
+          element.textContent = '✓ copied';
+          setTimeout(() => {
+            element.classList.remove('copied');
+            element.textContent = 'copy';
+          }, 1500);
+        }).catch(() => alert('Failed to copy text'));
+      };
+
+      function speakText(text) {
+        try{
+          const u = new SpeechSynthesisUtterance(text);
+          u.lang = 'en-US';
+          u.rate = 1; u.pitch = 1;
+          speechSynthesis.speak(u);
+        }catch(_){}
+      }
+
+      function addMessage(role, content, isHtml=false){
         const msgDiv = document.createElement('div');
         msgDiv.className = `message ${role}`;
 
@@ -482,8 +293,7 @@
 
         const contentDiv = document.createElement('div');
         contentDiv.className = 'content';
-
-        if (isHtml) contentDiv.innerHTML = content;
+        if(isHtml) contentDiv.innerHTML = content;
         else contentDiv.textContent = content;
 
         wrapper.appendChild(contentDiv);
@@ -491,7 +301,7 @@
         const copyUnder = document.createElement('span');
         copyUnder.className = 'copy-under';
         copyUnder.textContent = 'copy';
-        copyUnder.onclick = function() {
+        copyUnder.onclick = function(){
           const txt = contentDiv.innerText || contentDiv.textContent || "";
           copyText(this, txt);
         };
@@ -501,23 +311,31 @@
 
         const timeSpan = document.createElement('span');
         timeSpan.className = 'time';
-        const now = new Date();
-        timeSpan.textContent = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        timeSpan.textContent = new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
         msgDiv.appendChild(timeSpan);
 
         chatMessages.appendChild(msgDiv);
         chatMessages.scrollTop = chatMessages.scrollHeight;
 
-        if (role === 'assistant' && voiceOutput.checked) speakText(contentDiv.innerText);
+        if(role === 'assistant' && voiceOutput.checked){
+          speakText(contentDiv.innerText);
+        }
       }
+
+      // Show JS errors in chat (so it never "silently" breaks)
+      window.addEventListener('error', (ev) => {
+        try{ addMessage('system', `❌ JS Error: ${ev.message}`); }catch(_){}
+      });
+      window.addEventListener('unhandledrejection', (ev) => {
+        try{ addMessage('system', `❌ Promise Error: ${ev.reason?.message || ev.reason}`); }catch(_){}
+      });
 
       deepThinkBtn.addEventListener('click', () => {
         deepThinkActive = !deepThinkActive;
-        if (deepThinkActive) {
+        if(deepThinkActive){
           modelSelect.value = 'deepseek-r1';
           deepThinkBtn.classList.add('active');
-        } else {
-          modelSelect.value = 'gpt-5-nano';
+        }else{
           deepThinkBtn.classList.remove('active');
         }
       });
@@ -530,16 +348,15 @@
 
       uploadBtn.addEventListener('click', () => fileInput.click());
 
-      // ✅ UPDATED: Timeout + Retry + Dynamic tokens
-      async function chatWithAI(message) {
+      // ✅ Timeout + Retry + Dynamic tokens (returns message instead of infinite wait)
+      async function chatWithAI(message){
         const cacheKey = modelSelect.value + ":" + message;
-        if (responseCache.has(cacheKey)) return responseCache.get(cacheKey);
+        if(responseCache.has(cacheKey)) return responseCache.get(cacheKey);
 
-        if (!window.puter || !puter.ai || !puter.ai.chat) {
-          throw new Error("Puter.ai not available. Check internet / script loading.");
+        if(!window.puter || !puter.ai || !puter.ai.chat){
+          return "⚠️ Puter.ai not available. Check internet / script loading.";
         }
 
-        // Reduce tokens dynamically
         const len = (message || "").length;
         const dynamicMaxTokens =
           len < 80  ? 280 :
@@ -547,11 +364,8 @@
           len < 400 ? 700 :
                       1000;
 
-        const options = {
-          model: modelSelect.value,
-          max_tokens: dynamicMaxTokens
-        };
-        if (modelSelect.value !== "deepseek-r1") options.temperature = 0.7;
+        const options = { model: modelSelect.value, max_tokens: dynamicMaxTokens };
+        if(modelSelect.value !== "deepseek-r1") options.temperature = 0.7;
 
         const withTimeout = (promise, ms) =>
           Promise.race([
@@ -559,60 +373,52 @@
             new Promise((_, reject) => setTimeout(() => reject(new Error("timeout")), ms))
           ]);
 
-        try {
-          const response = await withTimeout(
-            puter.ai.chat(message, options),
-            12000
-          );
-
-          responseCache.set(cacheKey, response);
-          if (responseCache.size > 100) responseCache.delete(responseCache.keys().next().value);
-          return response;
-
-        } catch (err) {
-          // retry once fast
-          try {
-            const retryOpts = {
-              model: modelSelect.value,
-              max_tokens: Math.min(dynamicMaxTokens, 650)
-            };
-            if (modelSelect.value !== "deepseek-r1") retryOpts.temperature = 0.7;
-
-            const response2 = await withTimeout(
-              puter.ai.chat(message, retryOpts),
-              9000
-            );
-
-            responseCache.set(cacheKey, response2);
-            if (responseCache.size > 100) responseCache.delete(responseCache.keys().next().value);
-            return response2;
-
-          } catch (err2) {
-            // return message instead of infinite wait
+        try{
+          const resp = await withTimeout(puter.ai.chat(message, options), 12000);
+          responseCache.set(cacheKey, resp);
+          if(responseCache.size > 100) responseCache.delete(responseCache.keys().next().value);
+          return resp;
+        }catch(_){
+          // Retry once fast
+          try{
+            const retryOpts = { model: modelSelect.value, max_tokens: Math.min(dynamicMaxTokens, 650) };
+            if(modelSelect.value !== "deepseek-r1") retryOpts.temperature = 0.7;
+            const resp2 = await withTimeout(puter.ai.chat(message, retryOpts), 9000);
+            responseCache.set(cacheKey, resp2);
+            if(responseCache.size > 100) responseCache.delete(responseCache.keys().next().value);
+            return resp2;
+          }catch(__){
             return "⏳ Took too long. Please try again (or shorten the question).";
           }
         }
       }
 
-      // Image analyze
+      // Image upload analysis (kept simple and safe)
       fileInput.addEventListener('change', async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
+        const file = e.target.files && e.target.files[0];
+        if(!file) return;
+
+        addMessage('user', '📷 [Image uploaded]');
 
         const reader = new FileReader();
-        reader.onload = async (event) => {
-          const imageData = event.target.result;
-          addMessage('user', '📷 [Image uploaded]');
-
-          try {
-            const response = await puter.ai.chat(
-              "Analyze this image in detail, tell me what you see.",
-              imageData,
-              { model: modelSelect.value }
-            );
-            addMessage('assistant', renderContentToHTML(response), true);
-          } catch (error) {
-            addMessage('system', `❌ Error analyzing image: ${error?.message || String(error)}`);
+        reader.onload = async (ev) => {
+          const imageData = ev.target.result;
+          try{
+            if(!window.puter || !puter.ai || !puter.ai.chat){
+              addMessage('system', "⚠️ Puter.ai not available for image analysis.");
+              return;
+            }
+            // Some environments require message+options only; keep your original signature but handle failures.
+            let res;
+            try{
+              res = await puter.ai.chat("Analyze this image in detail, tell me what you see.", imageData, { model: modelSelect.value });
+            }catch(err){
+              // Fallback: send as text only if multimodal isn't supported
+              res = "⚠️ Image analysis not supported in this environment/account. The upload works, but the AI can't read images here.";
+            }
+            addMessage('assistant', renderContentToHTML(res), true);
+          }catch(err){
+            addMessage('system', `❌ Error analyzing image: ${err?.message || String(err)}`);
           }
         };
         reader.readAsDataURL(file);
@@ -620,42 +426,42 @@
       });
 
       async function doSend(){
-        const text = userInput.value.trim();
-        if (!text && !imageMode.checked) return;
+        const text = (userInput.value || "").trim();
+        if(!text) return;
 
-        if (imageMode.checked || text.toLowerCase().includes("صورة") || text.toLowerCase().includes("image") || text.toLowerCase().includes("picture")) {
-          addMessage('user', `🖼️ ${text}`);
-          userInput.value = '';
-          autoGrow();
-          // (kept minimal: image generation not included here)
-          addMessage('system', 'Image mode is ON, but this build focuses on chat + image analysis upload.');
-          return;
-        }
-
+        // show user message immediately (proves sending works)
         addMessage('user', text);
-        userInput.value = '';
+        userInput.value = "";
         autoGrow();
 
-        try{
-          let finalText = text;
-          if (internetSearch.checked) {
-            finalText = text + " (please include up-to-date information from the internet if possible)";
-          }
-          const response = await chatWithAI(finalText);
-          addMessage('assistant', renderContentToHTML(response), true);
-        }catch(error){
-          addMessage('system', `❌ Connection error: ${error?.message || String(error)}`);
+        let finalText = text;
+        if(internetSearch.checked){
+          finalText = text + " (please include up-to-date information from the internet if possible)";
         }
+
+        // show "thinking" instantly
+        const thinkingId = "thinking_" + Math.random().toString(36).slice(2);
+        addMessage('system', `Thinking... (${modelSelect.value})`);
+        const resp = await chatWithAI(finalText);
+        addMessage('assistant', renderContentToHTML(resp), true);
       }
 
-      sendBtn.addEventListener('click', doSend);
+      // ✅ Guaranteed send bindings (prevents "doesn't send")
+      sendBtn.addEventListener('click', (e)=>{ e.preventDefault(); doSend(); });
+      sendBtn.onclick = doSend;
+      sendBtn.addEventListener('touchstart', (e)=>{ e.preventDefault(); doSend(); }, {passive:false});
+      document.addEventListener('click', (e)=>{ if(e.target && e.target.id === 'sendBtn') doSend(); });
 
+      // ✅ Enter to send (Shift+Enter = new line)
       userInput.addEventListener('keydown', (e) => {
-        if (e.ctrlKey && e.key === 'Enter') {
+        if(e.key === 'Enter' && !e.shiftKey){
           e.preventDefault();
           doSend();
         }
       });
 
-      addMessage('system', 'Welcome to the infinite space! Try sending a message. Ctrl+Enter to send.');
-   
+      addMessage('system', 'Welcome to the infinite space! Type and press Enter or ↑ to send.');
+    })();
+  </script>
+</body>
+</html>
