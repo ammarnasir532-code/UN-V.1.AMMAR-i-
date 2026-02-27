@@ -167,7 +167,7 @@
       border:2px solid rgba(212,175,55,0.6);
       background:white;
       color:#1e1e2e;
-      font-size:0.95em; /* أقرب لشات جي بي تي */
+      font-size:0.95em;
       resize:none;
       font-family:inherit;
       box-shadow: inset 0 2px 5px rgba(0,0,0,0.03), 0 2px 5px rgba(255,215,0,0.1);
@@ -370,7 +370,6 @@
   </div>
 
   <script>
-    // Wrap everything to prevent one error from killing the whole app
     (function(){
       const chatMessages = document.getElementById('chatMessages');
       const userInput = document.getElementById('userInput');
@@ -396,7 +395,6 @@
       }
       userInput.addEventListener("input", autoGrow);
 
-      // Copy function
       window.copyText = function(element, text) {
         navigator.clipboard.writeText(text).then(() => {
           element.classList.add('copied');
@@ -420,7 +418,6 @@
         }catch(_){}
       }
 
-      // ===== Code block renderer (adds Copy code buttons) =====
       function escapeHtml(s){
         return String(s??"")
           .replace(/&/g,"&amp;")
@@ -449,12 +446,10 @@
             const m = seg.match(/^([a-zA-Z0-9_+-]+)\n([\s\S]*)$/);
             const lang = (m ? m[1] : guessLang(seg)).toLowerCase();
             const code = (m ? m[2] : seg).replace(/\n$/, "");
-
             const safeCode = escapeHtml(code);
 
-            const id = "cb_" + Math.random().toString(36).slice(2);
             html += `
-              <div class="codeblock" data-code-id="${id}">
+              <div class="codeblock">
                 <div class="codebar">
                   <div class="lang"><span class="dot"></span><span>${escapeHtml(lang)}</span></div>
                   <button class="codebtn" onclick="(function(btn){
@@ -471,7 +466,6 @@
               </div>
             `;
           } else {
-            // normal text, keep line breaks
             const safe = escapeHtml(parts[i]).replace(/\n/g, "<br>");
             html += safe;
           }
@@ -517,7 +511,6 @@
         if (role === 'assistant' && voiceOutput.checked) speakText(contentDiv.innerText);
       }
 
-      // Buttons
       deepThinkBtn.addEventListener('click', () => {
         deepThinkActive = !deepThinkActive;
         if (deepThinkActive) {
@@ -537,29 +530,71 @@
 
       uploadBtn.addEventListener('click', () => fileInput.click());
 
+      // ✅ UPDATED: Timeout + Retry + Dynamic tokens
       async function chatWithAI(message) {
         const cacheKey = modelSelect.value + ":" + message;
         if (responseCache.has(cacheKey)) return responseCache.get(cacheKey);
 
-        // If puter isn't ready, show a clear error
         if (!window.puter || !puter.ai || !puter.ai.chat) {
           throw new Error("Puter.ai not available. Check internet / script loading.");
         }
 
-        const options = { model: modelSelect.value, max_tokens: 1000 };
-        if (modelSelect.value !== 'deepseek-r1') options.temperature = 0.7;
+        // Reduce tokens dynamically
+        const len = (message || "").length;
+        const dynamicMaxTokens =
+          len < 80  ? 280 :
+          len < 180 ? 450 :
+          len < 400 ? 700 :
+                      1000;
 
-        const response = await puter.ai.chat(message, options);
+        const options = {
+          model: modelSelect.value,
+          max_tokens: dynamicMaxTokens
+        };
+        if (modelSelect.value !== "deepseek-r1") options.temperature = 0.7;
 
-        responseCache.set(cacheKey, response);
-        if (responseCache.size > 100) {
-          const firstKey = responseCache.keys().next().value;
-          responseCache.delete(firstKey);
+        const withTimeout = (promise, ms) =>
+          Promise.race([
+            promise,
+            new Promise((_, reject) => setTimeout(() => reject(new Error("timeout")), ms))
+          ]);
+
+        try {
+          const response = await withTimeout(
+            puter.ai.chat(message, options),
+            12000
+          );
+
+          responseCache.set(cacheKey, response);
+          if (responseCache.size > 100) responseCache.delete(responseCache.keys().next().value);
+          return response;
+
+        } catch (err) {
+          // retry once fast
+          try {
+            const retryOpts = {
+              model: modelSelect.value,
+              max_tokens: Math.min(dynamicMaxTokens, 650)
+            };
+            if (modelSelect.value !== "deepseek-r1") retryOpts.temperature = 0.7;
+
+            const response2 = await withTimeout(
+              puter.ai.chat(message, retryOpts),
+              9000
+            );
+
+            responseCache.set(cacheKey, response2);
+            if (responseCache.size > 100) responseCache.delete(responseCache.keys().next().value);
+            return response2;
+
+          } catch (err2) {
+            // return message instead of infinite wait
+            return "⏳ Took too long. Please try again (or shorten the question).";
+          }
         }
-        return response;
       }
 
-      // Image analyze (keep your original approach)
+      // Image analyze
       fileInput.addEventListener('change', async (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -575,7 +610,6 @@
               imageData,
               { model: modelSelect.value }
             );
-            // render as HTML so code blocks show nicely if returned
             addMessage('assistant', renderContentToHTML(response), true);
           } catch (error) {
             addMessage('system', `❌ Error analyzing image: ${error?.message || String(error)}`);
@@ -589,8 +623,16 @@
         const text = userInput.value.trim();
         if (!text && !imageMode.checked) return;
 
-        // Always show the user message first (so sending "works" even if AI fails)
-        addMessage('user', text || "[empty]");
+        if (imageMode.checked || text.toLowerCase().includes("صورة") || text.toLowerCase().includes("image") || text.toLowerCase().includes("picture")) {
+          addMessage('user', `🖼️ ${text}`);
+          userInput.value = '';
+          autoGrow();
+          // (kept minimal: image generation not included here)
+          addMessage('system', 'Image mode is ON, but this build focuses on chat + image analysis upload.');
+          return;
+        }
+
+        addMessage('user', text);
         userInput.value = '';
         autoGrow();
 
@@ -600,17 +642,14 @@
             finalText = text + " (please include up-to-date information from the internet if possible)";
           }
           const response = await chatWithAI(finalText);
-          // render assistant with code blocks
           addMessage('assistant', renderContentToHTML(response), true);
         }catch(error){
           addMessage('system', `❌ Connection error: ${error?.message || String(error)}`);
         }
       }
 
-      // ✅ FIX: robust sending
       sendBtn.addEventListener('click', doSend);
 
-      // ✅ Keep your original shortcut: Ctrl+Enter
       userInput.addEventListener('keydown', (e) => {
         if (e.ctrlKey && e.key === 'Enter') {
           e.preventDefault();
@@ -618,9 +657,5 @@
         }
       });
 
-      // Welcome
       addMessage('system', 'Welcome to the infinite space! Try sending a message. Ctrl+Enter to send.');
-    })();
-  </script>
-</body>
-  </html>
+   
