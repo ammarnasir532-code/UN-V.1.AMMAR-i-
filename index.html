@@ -5,20 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>AMMAR//i\\CADEMY - Cosmic AI</title>
 
-  <!-- Puter.js (for AI) -->
+  <!-- Puter.js -->
   <script src="https://js.puter.com/v2/"></script>
-
-  <!-- PDF.js -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.min.js"></script>
-
-  <!-- Mammoth (DOCX) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
-
-  <!-- SheetJS (XLSX) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.20.2/xlsx.full.min.js"></script>
-
-  <!-- Tesseract.js (OCR) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/5.0.5/tesseract.min.js"></script>
 
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
@@ -28,48 +16,144 @@
       min-height:100vh;display:flex;justify-content:center;align-items:center;
       padding:0;
     }
-    .app{width:100vw;height:100vh;display:flex;background:rgba(255,255,255,.85);backdrop-filter:blur(10px)}
-    /* Sidebar (only New Chat icon) */
-    .sidebar{
-      width:64px;
-      border-right:1px solid rgba(212,175,55,.22);
-      background:rgba(255,255,255,.65);
-      display:flex;flex-direction:column;align-items:center;
-      padding:10px 6px;gap:10px;
+
+    .app{
+      width:100vw;height:100vh;
+      display:flex;flex-direction:column;
+      background:rgba(255,255,255,.85);
+      backdrop-filter:blur(10px);
+      overflow:hidden;
     }
-    .newchat-icon{
-      width:44px;height:44px;border-radius:14px;
-      border:2px solid #D4AF37;
+
+    /* Top bar */
+    .topbar{
+      height:44px;
+      display:flex;align-items:center;justify-content:space-between;
+      padding:6px 10px;
+      border-bottom:1px solid rgba(212,175,55,.2);
+      flex-shrink:0;
+    }
+    .left-top{
+      display:flex;align-items:center;gap:10px;
+      min-width:0;
+    }
+    .hamburger{
+      width:36px;height:36px;border-radius:12px;
+      border:2px solid rgba(212,175,55,.6);
       background:rgba(255,255,255,.9);
       box-shadow:0 4px 8px rgba(212,175,55,.12);
-      cursor:pointer;transition:.2s;user-select:none;
+      cursor:pointer;user-select:none;
       display:flex;align-items:center;justify-content:center;
-      font-size:1.2rem;color:#1e1e2e;
+      transition:.2s;
     }
-    .newchat-icon:hover{background:rgba(212,175,55,.12);transform:translateY(-1px)}
-    .brand-mini{
-      margin-top:6px;text-align:center;font-size:.55rem;line-height:1.1;color:#5a5a7a;
-      user-select:none;
+    .hamburger:hover{background:rgba(212,175,55,.12);transform:translateY(-1px)}
+    .hamburger .lines{
+      width:16px;height:12px;display:flex;flex-direction:column;justify-content:space-between;
     }
-    /* Main */
-    .main{flex:1;display:flex;flex-direction:column;min-width:0}
-    .topbar{
-      display:flex;align-items:center;justify-content:space-between;
-      padding:6px 10px;border-bottom:1px solid rgba(212,175,55,.2);
+    .hamburger .lines span{
+      height:2px;border-radius:2px;background:#1e1e2e;opacity:.85;
     }
-    .topbar .hint{font-size:.75rem;color:#5a5a7a;font-weight:700}
+
+    .brand{
+      font-weight:800;
+      color:#D4AF37;
+      font-size:.9rem;
+      letter-spacing:.4px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
     .model-selector select{
       padding:3px 8px;border-radius:20px;border:1px solid #D4AF37;
       background:#fff;color:#1e1e2e;font-size:.7rem;cursor:pointer;
     }
+
+    /* Drawer */
+    .drawer-backdrop{
+      position:fixed;inset:0;
+      background:rgba(0,0,0,.2);
+      display:none;
+      z-index:50;
+    }
+    .drawer-backdrop.show{display:block}
+
+    .drawer{
+      position:fixed;top:0;left:0;height:100vh;width:290px;
+      background:rgba(255,255,255,.92);
+      backdrop-filter:blur(12px);
+      border-right:1px solid rgba(212,175,55,.22);
+      box-shadow: 12px 0 40px rgba(0,0,0,.12);
+      transform:translateX(-100%);
+      transition:.22s;
+      z-index:60;
+      display:flex;flex-direction:column;
+    }
+    .drawer.show{transform:translateX(0)}
+    .drawer-head{
+      padding:12px 12px 10px 12px;
+      display:flex;align-items:center;justify-content:space-between;
+      border-bottom:1px solid rgba(212,175,55,.2);
+    }
+    .drawer-title{
+      font-weight:800;color:#1e1e2e;font-size:.85rem;
+    }
+    .drawer-close{
+      width:34px;height:34px;border-radius:12px;
+      border:1px solid rgba(212,175,55,.5);
+      background:rgba(255,255,255,.9);
+      cursor:pointer;
+    }
+
+    .newchat-btn{
+      margin:12px;
+      border-radius:16px;
+      border:2px solid #D4AF37;
+      background:rgba(255,255,255,.95);
+      box-shadow:0 4px 8px rgba(212,175,55,.12);
+      padding:10px 12px;
+      cursor:pointer;
+      font-weight:800;
+      display:flex;align-items:center;justify-content:center;
+      gap:8px;
+      transition:.2s;
+      user-select:none;
+    }
+    .newchat-btn:hover{background:rgba(212,175,55,.12);transform:translateY(-1px)}
+
+    .chatlist{
+      padding:0 8px 12px 8px;
+      overflow:auto;
+      flex:1;
+    }
+    .chatitem{
+      padding:10px 10px;
+      border-radius:14px;
+      border:1px solid rgba(212,175,55,.18);
+      background:rgba(255,255,255,.65);
+      margin:8px 4px;
+      cursor:pointer;
+      transition:.15s;
+      user-select:none;
+    }
+    .chatitem:hover{background:rgba(212,175,55,.10)}
+    .chatitem.active{
+      background:rgba(212,175,55,.16);
+      border-color:rgba(184,134,11,.35);
+    }
+    .chatitem .title{font-weight:800;font-size:.8rem;color:#1e1e2e}
+    .chatitem .meta{font-size:.65rem;color:#5a5a7a;margin-top:2px}
+
+    /* Chat */
     .chat-container{display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden}
     .chat-messages{
       flex:1;overflow-y:auto;padding:15px;min-height:0;
       box-shadow:inset 0 0 20px rgba(255,255,255,.6),0 4px 15px rgba(0,0,0,.05);
       background:rgba(255,255,255,.3);
       border-radius:20px 20px 0 0;
-      margin:8px 10px 0 10px;
+      margin:10px 10px 0 10px;
     }
+
     .message{margin-bottom:10px;display:flex;flex-direction:column;position:relative}
     .message.user{align-items:flex-end}
     .message.assistant{align-items:flex-start}
@@ -86,6 +170,7 @@
     .message.user .content{background:rgba(255,255,240,.7)}
     .message.assistant .content{background:rgba(255,255,240,.9)}
     .message.system .content{background:rgba(249,226,175,.9)}
+
     .copy-under{
       background:rgba(255,255,255,.5);
       border:none;border-radius:8px;
@@ -98,14 +183,16 @@
     .copy-under.copied{background:#4CAF50;color:#fff;box-shadow:none}
     .message .time{font-size:.55em;color:#5a5a7a;margin-top:3px;margin-left:5px}
 
+    /* Input */
     .input-frame{
-      margin:0 10px 10px 10px;height:4cm;
+      margin:0 10px 10px 10px;height:4.2cm;
       background:rgba(255,255,255,.6);
       border:1px solid rgba(255,215,0,.3);
       border-radius:20px;backdrop-filter:blur(5px);
       padding:6px 10px;display:flex;flex-direction:column;
       justify-content:space-between;
       box-shadow:0 8px 20px rgba(255,255,255,.3),0 2px 5px rgba(0,0,0,.05);
+      flex-shrink:0;
     }
     .input-row{display:flex;align-items:center;gap:5px}
     .input-row textarea{
@@ -125,98 +212,135 @@
       flex-shrink:0;line-height:1;user-select:none;
     }
     .circle-send:hover{background:rgba(212,175,55,.1);transform:scale(1.05)}
-    .compact-row{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap}
-    .upload-icon-small{
-      background:none;border:none;font-size:1.1rem;cursor:pointer;color:#2d2d3a;
+
+    /* Bottom controls (clip + deep think + provider) */
+    .bottom-row{
+      display:flex;align-items:center;justify-content:flex-start;
+      gap:10px;padding:0 6px 2px 6px;
+      color:#2d2d3a;
+      flex-wrap:wrap;
+    }
+    .icon-btn{
+      background:none;border:none;
+      font-size:1.1rem;
+      cursor:pointer;color:#2d2d3a;
       transition:.2s;padding:0 3px;user-select:none;
     }
-    .upload-icon-small:hover{color:#D4AF37}
-    .image-result{margin:0 10px 10px 10px;text-align:center}
-    .image-result img{
-      max-width:200px;max-height:200px;border-radius:15px;
-      box-shadow:0 5px 15px rgba(0,0,0,.2);
-      border:2px solid #D4AF37;cursor:pointer;transition:.2s;
+    .icon-btn:hover{color:#D4AF37}
+    .pill{
+      display:inline-flex;align-items:center;gap:8px;
+      border:1px solid rgba(212,175,55,.35);
+      background:rgba(255,255,255,.65);
+      padding:4px 10px;border-radius:999px;
+      font-size:.72rem;font-weight:800;
+      user-select:none;
     }
-    .image-result img:hover{transform:scale(1.02);box-shadow:0 8px 20px rgba(212,175,55,.3)}
-    .download-link{
-      display:inline-block;margin-top:5px;padding:4px 12px;background:#D4AF37;color:#fff;
-      border-radius:20px;text-decoration:none;font-size:.7rem;font-weight:bold;
+    .dot{
+      width:8px;height:8px;border-radius:999px;background:#999;
+      display:inline-block;
     }
-    .download-link:hover{background:#b8860b}
-    @media (max-width: 720px){ .sidebar{width:54px} }
+    .dot.on{background:#22c55e} /* green */
+    .dot.off{background:#9ca3af} /* gray */
+
+    /* Blink loader message */
+    .blink{font-weight:800;letter-spacing:2px}
+
   </style>
 </head>
 
 <body>
   <div class="app">
-    <aside class="sidebar">
-      <div class="newchat-icon" id="newChatBtn" title="New chat">＋</div>
-      <div class="brand-mini">AMMAR<br/>2026</div>
+    <div class="topbar">
+      <div class="left-top">
+        <button class="hamburger" id="openDrawer" title="Menu">
+          <div class="lines"><span></span><span></span><span></span></div>
+        </button>
+        <div class="brand">AMMAR//i\\CADEMY</div>
+      </div>
+
+      <div class="model-selector">
+        <select id="modelSelect">
+          <option value="gpt-5-nano">GPT-5 Nano</option>
+          <option value="claude-opus-4">Claude Opus 4</option>
+          <option value="gemini-2.0-pro">Gemini 2.0 Pro</option>
+          <option value="deepseek-r1" selected>DeepSeek R1</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Drawer -->
+    <div class="drawer-backdrop" id="drawerBackdrop"></div>
+    <aside class="drawer" id="drawer">
+      <div class="drawer-head">
+        <div class="drawer-title">Chats</div>
+        <button class="drawer-close" id="closeDrawer" title="Close">✕</button>
+      </div>
+
+      <button class="newchat-btn" id="newChatBtn">＋ New Chat</button>
+
+      <div class="chatlist" id="chatList"></div>
     </aside>
 
-    <main class="main">
-      <div class="topbar">
-        <div class="hint" id="deepHint">Auto DeepThink: OFF</div>
-        <div class="model-selector">
-          <select id="modelSelect">
-            <option value="gpt-5-nano">GPT-5 Nano</option>
-            <option value="claude-opus-4">Claude Opus 4</option>
-            <option value="gemini-2.0-pro">Gemini 2.0 Pro</option>
-            <option value="deepseek-r1" selected>DeepSeek R1</option>
-          </select>
-        </div>
-      </div>
+    <!-- Chat -->
+    <div class="chat-container">
+      <div class="chat-messages" id="chatMessages"></div>
 
-      <div class="chat-container">
-        <div class="chat-messages" id="chatMessages"></div>
-
-        <div class="input-frame">
-          <div class="input-row">
-            <textarea id="userInput" placeholder="Type your message here..." rows="1"></textarea>
-            <button class="circle-send" id="sendBtn">↑</button>
-          </div>
-
-          <div class="compact-row">
-            <button class="upload-icon-small" id="uploadBtn" title="Upload file (Image/PDF/DOCX/XLSX)">📎</button>
-          </div>
-
-          <input type="file" id="fileInput" accept="image/*,.pdf,.docx,.xlsx" style="display:none;">
+      <div class="input-frame">
+        <div class="input-row">
+          <textarea id="userInput" placeholder="Type your message here..." rows="1"></textarea>
+          <button class="circle-send" id="sendBtn" type="button">↑</button>
         </div>
 
-        <div class="image-result" id="imageResult"></div>
+        <!-- Bottom controls row -->
+        <div class="bottom-row">
+          <button class="icon-btn" id="uploadBtn" title="Upload">📎</button>
+
+          <div class="pill" title="Auto DeepThink">
+            <span>التفكير العميق</span>
+            <span class="dot off" id="deepDot"></span>
+          </div>
+
+          <div class="pill" title="External Provider">
+            <span>مزود خارجي</span>
+            <span class="dot on" id="providerDot"></span>
+          </div>
+
+          <input type="file" id="fileInput" style="display:none" />
+        </div>
       </div>
-    </main>
+    </div>
   </div>
 
   <script>
-    // ======== IMPORTANT: No device storage ========
-    // - NO localStorage
-    // - NO IndexedDB
-    // Everything resets on refresh/close.
+    // ========= Error Guard =========
+    window.addEventListener("error", (e) => {
+      try { addMessage("system", "❌ JS Error: " + (e.message || "unknown")); } catch(_) {}
+    });
+    window.addEventListener("unhandledrejection", (e) => {
+      try { addMessage("system", "❌ Promise Error: " + (e.reason?.message || e.reason || "unknown")); } catch(_) {}
+    });
 
-    // pdf.js worker
-    if (window.pdfjsLib) {
-      pdfjsLib.GlobalWorkerOptions.workerSrc =
-        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.worker.min.js";
-    }
-
-    // DOM
+    // ========= DOM =========
     const chatMessages = document.getElementById('chatMessages');
-    const userInput = document.getElementById('userInput');
-    const sendBtn = document.getElementById('sendBtn');
+    const userInput    = document.getElementById('userInput');
+    const sendBtn      = document.getElementById('sendBtn');
+    const modelSelect  = document.getElementById('modelSelect');
 
-    const modelSelect = document.getElementById('modelSelect');
+    const openDrawerBtn = document.getElementById('openDrawer');
+    const closeDrawerBtn = document.getElementById('closeDrawer');
+    const drawerBackdrop = document.getElementById('drawerBackdrop');
+    const drawer = document.getElementById('drawer');
+
+    const newChatBtn = document.getElementById('newChatBtn');
+    const chatListEl = document.getElementById('chatList');
+
     const uploadBtn = document.getElementById('uploadBtn');
     const fileInput = document.getElementById('fileInput');
-    const imageResult = document.getElementById('imageResult');
-    const newChatBtn = document.getElementById('newChatBtn');
-    const deepHint = document.getElementById('deepHint');
-    const uploadBtnEl = document.getElementById('uploadBtn');
 
-    // RAM cache
-    const responseCache = new Map();
+    const deepDot = document.getElementById('deepDot');
+    const providerDot = document.getElementById('providerDot');
 
-    // ======== Copy ========
+    // ========= Copy =========
     window.copyText = function(element, text){
       navigator.clipboard.writeText(text).then(()=>{
         element.classList.add('copied');
@@ -224,43 +348,11 @@
         setTimeout(()=>{
           element.classList.remove('copied');
           element.textContent = 'copy';
-        }, 2000);
+        }, 1200);
       }).catch(()=> alert('Failed to copy text'));
     };
 
-    // ======== Rendering ========
-    function escapeHTML(str){
-      return String(str||"")
-        .replace(/&/g,"&amp;")
-        .replace(/</g,"&lt;")
-        .replace(/>/g,"&gt;")
-        .replace(/"/g,"&quot;")
-        .replace(/'/g,"&#39;");
-    }
-
-    function sanitizeModelThinking(text){
-      return String(text||"")
-        .replace(/deepseek\s*r1\s*[:\-]?\s*thinking/gi, "thinking")
-        .replace(/\bdeepseek\s*r1\b/gi, "");
-    }
-
-    function renderContentToHTML(text){
-      const s = sanitizeModelThinking(text);
-      const parts = s.split(/```/);
-      let out = "";
-      for(let i=0;i<parts.length;i++){
-        if(i % 2 === 0){
-          out += escapeHTML(parts[i]).replace(/\n/g,"<br>");
-        } else {
-          const code = escapeHTML(parts[i].replace(/^\w+\n/, ""));
-          out += `<pre style="white-space:pre-wrap;margin:8px 0;padding:8px;border-radius:12px;border:1px solid rgba(212,175,55,0.35);background:rgba(255,255,255,0.65);font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:0.8em;">${code}</pre>`;
-        }
-      }
-      out = out.replace(/`([^`]+)`/g, (m,g1)=>`<code style="padding:1px 6px;border-radius:8px;border:1px solid rgba(212,175,55,0.35);background:rgba(255,255,255,0.6);">${escapeHTML(g1)}</code>`);
-      return out;
-    }
-
-    function addMessage(role, content, isHtml=false){
+    function addMessage(role, content){
       const msgDiv = document.createElement('div');
       msgDiv.className = `message ${role}`;
 
@@ -269,9 +361,7 @@
 
       const contentDiv = document.createElement('div');
       contentDiv.className = 'content';
-
-      if(isHtml) contentDiv.innerHTML = content;
-      else contentDiv.textContent = content;
+      contentDiv.textContent = String(content || "");
 
       wrapper.appendChild(contentDiv);
 
@@ -285,238 +375,220 @@
 
       const timeSpan = document.createElement('span');
       timeSpan.className = 'time';
-      const now = new Date();
-      timeSpan.textContent = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+      timeSpan.textContent = new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
       msgDiv.appendChild(timeSpan);
 
       chatMessages.appendChild(msgDiv);
       chatMessages.scrollTop = chatMessages.scrollHeight;
 
+      // store in current chat memory
+      if (currentChat && role !== "system_loader") {
+        currentChat.messages.push({ role, content: String(content||""), t: Date.now() });
+      }
       return msgDiv;
     }
 
-    // ======== Blinking dot loader ========
+    // ========= Loader (single blinking dot) =========
     let blinkTimer = null;
-    let blinkEl = null;
+    function showBlink(){
+      const el = document.createElement('div');
+      el.className = 'message system';
+      const wrapper = document.createElement('div');
+      wrapper.className = 'content-wrapper';
+      const contentDiv = document.createElement('div');
+      contentDiv.className = 'content blink';
+      contentDiv.textContent = "•";
+      wrapper.appendChild(contentDiv);
+      el.appendChild(wrapper);
+      chatMessages.appendChild(el);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
 
-    function showBlinkLoader(){
-      const div = document.createElement('div');
-      div.className = 'message system';
+      let on = true;
+      clearInterval(blinkTimer);
+      blinkTimer = setInterval(()=>{
+        on = !on;
+        contentDiv.textContent = on ? "•" : " ";
+      }, 450);
+
+      return el;
+    }
+    function hideBlink(el){
+      clearInterval(blinkTimer);
+      blinkTimer = null;
+      if(el && el.parentNode) el.parentNode.removeChild(el);
+    }
+
+    // ========= Puter ready =========
+    function ensurePuter(){
+      if(!window.puter) return { ok:false, why:"Puter.js لم يتحمّل. تأكد الانترنت وحدث الصفحة." };
+      if(!puter.ai || !puter.ai.chat) return { ok:false, why:"puter.ai.chat غير متوفر حالياً." };
+      return { ok:true };
+    }
+
+    // ========= Auto DeepThink heuristic =========
+    function looksScientificOrDeep(q){
+      const s = String(q||"").toLowerCase();
+      const keys = [
+        "equation","proof","theorem","physics","quantum","relativity","cosmology","black hole","galaxy",
+        "algorithm","complexity","optimize","neural","model","training","gradient","bayes","likelihood","dtw",
+        "معادلة","برهان","اشتقاق","نظرية","فيزياء","كم","نسبية","كون","ثقب","مجرة","خوارزمية","تعقيد","تحسين",
+        "نموذج","تدريب","بايز","احتمال","dtw","ifm2","aic","bic","lensing","κ"
+      ];
+      let hit = 0;
+      for(const k of keys) if(s.includes(k)) hit++;
+      const long = s.length >= 240;
+      const multi = /[\n\r]|(\b1\)|\b2\)|\b3\)|•|- )/.test(s);
+      return hit >= 2 || long || multi;
+    }
+
+    function setDeepDot(on){
+      deepDot.classList.remove("on","off");
+      deepDot.classList.add(on ? "on" : "off");
+    }
+    function setProviderDot(on){
+      providerDot.classList.remove("on","off");
+      providerDot.classList.add(on ? "on" : "off");
+    }
+
+    // ========= In-RAM chat sessions (max 10) =========
+    // NOTE: this is RAM-only; disappears if page refreshes.
+    const chats = [];
+    let currentChat = null;
+
+    function makeTitleFromFirstUserMsg(text){
+      const t = String(text||"").trim().replace(/\s+/g," ");
+      if(!t) return "New chat";
+      return t.length > 26 ? (t.slice(0,26) + "…") : t;
+    }
+
+    function renderChatList(){
+      chatListEl.innerHTML = "";
+      chats.forEach((c, idx) => {
+        const item = document.createElement("div");
+        item.className = "chatitem" + ((currentChat && currentChat.id === c.id) ? " active" : "");
+        const title = document.createElement("div");
+        title.className = "title";
+        title.textContent = c.title;
+
+        const meta = document.createElement("div");
+        meta.className = "meta";
+        meta.textContent = `Messages: ${c.messages.length}`;
+
+        item.appendChild(title);
+        item.appendChild(meta);
+
+        item.onclick = () => {
+          switchToChat(c.id);
+          closeDrawer();
+        };
+
+        chatListEl.appendChild(item);
+      });
+    }
+
+    function switchToChat(id){
+      const found = chats.find(x => x.id === id);
+      if(!found) return;
+      currentChat = found;
+
+      // re-render messages
+      chatMessages.innerHTML = "";
+      for(const m of currentChat.messages){
+        // rebuild bubble
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `message ${m.role}`;
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'content-wrapper';
+
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'content';
+        contentDiv.textContent = m.content;
+
+        wrapper.appendChild(contentDiv);
+
+        const copyUnder = document.createElement('span');
+        copyUnder.className = 'copy-under';
+        copyUnder.textContent = 'copy';
+        copyUnder.onclick = function(){ copyText(this, contentDiv.textContent || contentDiv.innerText); };
+        wrapper.appendChild(copyUnder);
+
+        msgDiv.appendChild(wrapper);
+
+        const timeSpan = document.createElement('span');
+        timeSpan.className = 'time';
+        timeSpan.textContent = new Date(m.t).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+        msgDiv.appendChild(timeSpan);
+
+        chatMessages.appendChild(msgDiv);
+      }
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+
+      renderChatList();
+    }
+
+    function startNewChat(){
+      // If current chat is empty, reuse it
+      if(currentChat && currentChat.messages.length === 0){
+        chatMessages.innerHTML = "";
+        addBootMessage();
+        renderChatList();
+        return;
+      }
+
+      // create
+      const id = "chat_" + Math.random().toString(16).slice(2) + "_" + Date.now();
+      const chat = { id, title:"New chat", createdAt: Date.now(), messages: [] };
+
+      // add to front
+      chats.unshift(chat);
+
+      // keep only 10 chats
+      while(chats.length > 10) chats.pop();
+
+      currentChat = chat;
+
+      chatMessages.innerHTML = "";
+      addBootMessage();
+      renderChatList();
+    }
+
+    function addBootMessage(){
+      // avoid storing as loader/system history spam
+      const msgDiv = document.createElement('div');
+      msgDiv.className = `message system`;
 
       const wrapper = document.createElement('div');
       wrapper.className = 'content-wrapper';
 
-      const content = document.createElement('div');
-      content.className = 'content';
-      content.textContent = "•";
+      const contentDiv = document.createElement('div');
+      contentDiv.className = 'content';
+      contentDiv.textContent = "Welcome to the infinite space! ✨";
 
-      wrapper.appendChild(content);
-      div.appendChild(wrapper);
+      wrapper.appendChild(contentDiv);
 
-      chatMessages.appendChild(div);
+      const copyUnder = document.createElement('span');
+      copyUnder.className = 'copy-under';
+      copyUnder.textContent = 'copy';
+      copyUnder.onclick = function(){ copyText(this, contentDiv.textContent || contentDiv.innerText); };
+      wrapper.appendChild(copyUnder);
+
+      msgDiv.appendChild(wrapper);
+
+      const timeSpan = document.createElement('span');
+      timeSpan.className = 'time';
+      timeSpan.textContent = new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+      msgDiv.appendChild(timeSpan);
+
+      chatMessages.appendChild(msgDiv);
+
+      // store it
+      if(currentChat){
+        currentChat.messages.push({ role:"system", content:"Welcome to the infinite space! ✨", t: Date.now() });
+      }
       chatMessages.scrollTop = chatMessages.scrollHeight;
-
-      blinkEl = content;
-      let on = true;
-
-      clearInterval(blinkTimer);
-      blinkTimer = setInterval(()=>{
-        if(!blinkEl) return;
-        on = !on;
-        blinkEl.textContent = on ? "•" : " ";
-      }, 450);
-
-      return div;
     }
 
-    function hideBlinkLoader(loader){
-      clearInterval(blinkTimer);
-      blinkTimer = null;
-      blinkEl = null;
-      if(loader && loader.parentNode) loader.parentNode.removeChild(loader);
-    }
-
-    // ======== Auto DeepThink detection ========
-    function looksScientificOrDeep(q){
-      const s = String(q||"").toLowerCase();
-
-      // Heuristic keywords (English + Arabic)
-      const keys = [
-        "equation","derivation","proof","theorem","physics","quantum","relativity","cosmology","black hole","galaxy",
-        "algorithm","complexity","optimize","neural","model","training","gradient","bayes","likelihood","dtw",
-        "معادلة","برهان","اشتقاق","نظرية","فيزياء","كم","نسبية","كون","ثقب","مجرة","خوارزمية","تعقيد","تحسين",
-        "نموذج","تدريب","بايز","احتمال","دليل","dtw","ifm2","aic","bic","fσ8","lensing","κ","نمو"
-      ];
-      let hit = 0;
-      for(const k of keys) if(s.includes(k)) hit++;
-
-      // Also: longer / multi-part questions
-      const long = s.length >= 280;
-      const multi = /[\n\r]|(\b1\)|\b2\)|\b3\)|•|- )/.test(s);
-
-      return hit >= 2 || long || multi;
-    }
-
-    function setAutoDeepThinkUI(on){
-      deepHint.textContent = on ? "Auto DeepThink: ON" : "Auto DeepThink: OFF";
-    }
-
-    // ======== Wikipedia helpers (only used when question is deep/scientific) ========
-    function normalizeForKeywords(s){
-      return String(s||"")
-        .toLowerCase()
-        .replace(/[^\p{L}\p{N}\s]/gu, " ")
-        .replace(/\s+/g, " ")
-        .trim();
-    }
-    function extractKeywords(text, max=6){
-      const t = normalizeForKeywords(text);
-      if(!t) return [];
-      const stop = new Set(["the","and","for","with","this","that","from","into","about","what","why","how","when","where","which",
-                            "في","من","على","الى","إلى","عن","ما","ماذا","لماذا","كيف","متى","أين","اي","أي","مع","هذا","هذه","ذلك","تلك"]);
-      const words = t.split(" ").filter(w => w.length >= 4 && !stop.has(w));
-      const freq = new Map();
-      for(const w of words) freq.set(w, (freq.get(w)||0)+1);
-      return [...freq.entries()].sort((a,b)=>b[1]-a[1]).slice(0,max).map(x=>x[0]);
-    }
-    async function wikiSummary(title){
-      const url = "https://en.wikipedia.org/api/rest_v1/page/summary/" + encodeURIComponent(title);
-      const r = await fetch(url, { headers:{accept:"application/json"} });
-      if(!r.ok) throw new Error("Wikipedia failed");
-      const j = await r.json();
-      const extract = (j?.extract || "").replace(/\s+/g," ").trim();
-      const pageUrl = j?.content_urls?.desktop?.page || ("https://en.wikipedia.org/wiki/" + encodeURIComponent(title.replace(/ /g,"_")));
-      return { title, extract, url: pageUrl };
-    }
-    async function wikiSearch(query, limit=3){
-      const url = "https://en.wikipedia.org/w/api.php?origin=*&action=query&list=search&format=json&srsearch=" + encodeURIComponent(query);
-      const r = await fetch(url);
-      if(!r.ok) throw new Error("Wikipedia search failed");
-      const j = await r.json();
-      return (j?.query?.search || []).slice(0, limit).map(x => x.title);
-    }
-    async function fetchWikiPack(question){
-      const keys = extractKeywords(question, 5);
-      if(keys.length === 0) return [];
-      const titles = [];
-      try{
-        const r1 = await wikiSearch(keys[0], 2);
-        for(const t of r1) titles.push(t);
-      }catch(_){}
-      if(keys[1]){
-        try{
-          const r2 = await wikiSearch(keys[1], 1);
-          for(const t of r2) titles.push(t);
-        }catch(_){}
-      }
-      const uniq = [...new Set(titles)].slice(0,2);
-      const out = [];
-      for(const t of uniq){
-        try{
-          const s = await wikiSummary(t);
-          if(s.extract) out.push(s);
-        }catch(_){}
-      }
-      return out;
-    }
-    function formatWikiBlock(pages){
-      if(!pages || pages.length === 0) return "";
-      const facts = pages
-        .filter(p => p.extract)
-        .map(p => `• ${p.title}: ${p.extract.slice(0, 420)}\n  Source: ${p.url}`)
-        .join("\n\n");
-      return `\n\nمعلومات مختصرة من ويكيبيديا:\n${facts}\n`;
-    }
-
-    // ======== AI Call (timeout + retry + dynamic tokens + auto deepthink) ========
-    async function puterChatText(message, opts){
-      return await puter.ai.chat(message, opts);
-    }
-
-    async function chatWithAI(message){
-      const cacheKey = modelSelect.value + ":" + message;
-      if(responseCache.has(cacheKey)) return responseCache.get(cacheKey);
-
-      const len = String(message||"").length;
-      const baseMaxTok = (len < 450) ? 650 : 1100;
-
-      const baseOpts = { model: modelSelect.value, max_tokens: baseMaxTok };
-      if(modelSelect.value !== "deepseek-r1") baseOpts.temperature = 0.7;
-
-      const attempt = async (timeoutMs, optsOverride={}) => {
-        const opts = { ...baseOpts, ...optsOverride };
-        const p = puterChatText(message, opts);
-        return await Promise.race([
-          p,
-          new Promise((_, rej)=> setTimeout(()=> rej(new Error("timeout")), timeoutMs))
-        ]);
-      };
-
-      try{
-        const r = await attempt(12000);
-        responseCache.set(cacheKey, r);
-        if(responseCache.size > 120){
-          const firstKey = responseCache.keys().next().value;
-          responseCache.delete(firstKey);
-        }
-        return r;
-      }catch(e1){
-        // quick retry with lower tokens
-        try{
-          const r2 = await attempt(8000, { max_tokens: Math.max(320, Math.floor(baseMaxTok * 0.6)) });
-          return r2;
-        }catch(e2){
-          // fallback to deepseek-r1
-          const prev = modelSelect.value;
-          modelSelect.value = "deepseek-r1";
-          try{
-            const r3 = await attempt(12000, { model: "deepseek-r1", max_tokens: Math.max(450, Math.floor(baseMaxTok * 0.8)) });
-            return r3;
-          } finally {
-            modelSelect.value = prev;
-          }
-        }
-      }
-    }
-
-    // ======== Image generation (Pollinations) ========
-    async function generateImage(prompt){
-      const imgUrl = `https://pollinations.ai/p/${encodeURIComponent(prompt)}`;
-      imageResult.innerHTML = `
-        <img src="${imgUrl}" alt="${escapeHTML(prompt)}" onclick="window.open('${imgUrl}')">
-        <br>
-        <a href="${imgUrl}" download="${prompt.replace(/\s+/g,'_')}.png" class="download-link">📥 Download Image</a>
-      `;
-      return imgUrl;
-    }
-    async function handleImageRequest(text){
-      const enhanced = await chatWithAI("Improve this prompt for an image generation: " + text);
-      return generateImage(String(enhanced || text));
-    }
-
-    // ======== File reading ========
-    function fileExt(name){
-      const n = (name||"").toLowerCase();
-      const i = n.lastIndexOf(".");
-      return i >= 0 ? n.slice(i+1) : "";
-    }
-
-    async function readPDFText(file){
-      if(!window.pdfjsLib) throw new Error("PDF.js not loaded");
-      const buf = await file.arrayBuffer();
-      const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
-
-      const maxPages = Math.min(pdf.numPages, 12);
-      let text = "";
-      for(let p=1; p<=maxPages; p++){
-        const page = await pdf.getPage(p);
-        const c = await page.getTextContent();
-        const pageText = c.items.map(it => it.str).join(" ").replace(/\s+/g," ").trim();
-        if(pageText) text += `\n\n[Page ${p}] ${pageText}`;
-        if(text.length > 22000) break;
-      }
-      return text.trim();
-    }
-
-    async function readDOCX(file){
-      if(!window.ma
+    // ========= Drawer controls =========
+    function openDrawer(){
+      d
