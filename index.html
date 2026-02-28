@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>AMMAR//i\\CADEMY - Cosmic AI</title>
 
-  <!-- Puter.js -->
   <script src="https://js.puter.com/v2/"></script>
 
   <style>
@@ -14,137 +13,42 @@
       font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
       background:#f0ebe1;color:#1e1e2e;
       min-height:100vh;display:flex;justify-content:center;align-items:center;
-      padding:0;
     }
-
     .app{
       width:100vw;height:100vh;
-      display:flex;flex-direction:column;
       background:rgba(255,255,255,.85);
       backdrop-filter:blur(10px);
+      display:flex;flex-direction:column;
       overflow:hidden;
     }
-
-    /* Top bar */
     .topbar{
       height:44px;
       display:flex;align-items:center;justify-content:space-between;
       padding:6px 10px;
       border-bottom:1px solid rgba(212,175,55,.2);
+      user-select:none;
       flex-shrink:0;
     }
-    .left-top{
-      display:flex;align-items:center;gap:10px;
-      min-width:0;
-    }
     .hamburger{
-      width:36px;height:36px;border-radius:12px;
-      border:2px solid rgba(212,175,55,.6);
-      background:rgba(255,255,255,.9);
-      box-shadow:0 4px 8px rgba(212,175,55,.12);
-      cursor:pointer;user-select:none;
+      width:38px;height:38px;border-radius:12px;
+      border:2px solid rgba(212,175,55,.55);
+      background:rgba(255,255,255,.92);
+      box-shadow:0 4px 10px rgba(212,175,55,.14);
+      cursor:pointer;
       display:flex;align-items:center;justify-content:center;
       transition:.2s;
     }
     .hamburger:hover{background:rgba(212,175,55,.12);transform:translateY(-1px)}
-    .hamburger .lines{
-      width:16px;height:12px;display:flex;flex-direction:column;justify-content:space-between;
-    }
-    .hamburger .lines span{
-      height:2px;border-radius:2px;background:#1e1e2e;opacity:.85;
-    }
+    .hamburger .lines{width:16px;height:12px;display:flex;flex-direction:column;justify-content:space-between}
+    .hamburger .lines span{height:2px;border-radius:2px;background:#1e1e2e;opacity:.85}
 
     .brand{
-      font-weight:800;
-      color:#D4AF37;
-      font-size:.9rem;
-      letter-spacing:.4px;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
+      font-weight:800;color:#D4AF37;font-size:.95rem;letter-spacing:.4px;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+      text-align:center;flex:1;
     }
+    .topbar .spacer{width:38px;height:38px} /* keep brand centered */
 
-    .model-selector select{
-      padding:3px 8px;border-radius:20px;border:1px solid #D4AF37;
-      background:#fff;color:#1e1e2e;font-size:.7rem;cursor:pointer;
-    }
-
-    /* Drawer */
-    .drawer-backdrop{
-      position:fixed;inset:0;
-      background:rgba(0,0,0,.2);
-      display:none;
-      z-index:50;
-    }
-    .drawer-backdrop.show{display:block}
-
-    .drawer{
-      position:fixed;top:0;left:0;height:100vh;width:290px;
-      background:rgba(255,255,255,.92);
-      backdrop-filter:blur(12px);
-      border-right:1px solid rgba(212,175,55,.22);
-      box-shadow: 12px 0 40px rgba(0,0,0,.12);
-      transform:translateX(-100%);
-      transition:.22s;
-      z-index:60;
-      display:flex;flex-direction:column;
-    }
-    .drawer.show{transform:translateX(0)}
-    .drawer-head{
-      padding:12px 12px 10px 12px;
-      display:flex;align-items:center;justify-content:space-between;
-      border-bottom:1px solid rgba(212,175,55,.2);
-    }
-    .drawer-title{
-      font-weight:800;color:#1e1e2e;font-size:.85rem;
-    }
-    .drawer-close{
-      width:34px;height:34px;border-radius:12px;
-      border:1px solid rgba(212,175,55,.5);
-      background:rgba(255,255,255,.9);
-      cursor:pointer;
-    }
-
-    .newchat-btn{
-      margin:12px;
-      border-radius:16px;
-      border:2px solid #D4AF37;
-      background:rgba(255,255,255,.95);
-      box-shadow:0 4px 8px rgba(212,175,55,.12);
-      padding:10px 12px;
-      cursor:pointer;
-      font-weight:800;
-      display:flex;align-items:center;justify-content:center;
-      gap:8px;
-      transition:.2s;
-      user-select:none;
-    }
-    .newchat-btn:hover{background:rgba(212,175,55,.12);transform:translateY(-1px)}
-
-    .chatlist{
-      padding:0 8px 12px 8px;
-      overflow:auto;
-      flex:1;
-    }
-    .chatitem{
-      padding:10px 10px;
-      border-radius:14px;
-      border:1px solid rgba(212,175,55,.18);
-      background:rgba(255,255,255,.65);
-      margin:8px 4px;
-      cursor:pointer;
-      transition:.15s;
-      user-select:none;
-    }
-    .chatitem:hover{background:rgba(212,175,55,.10)}
-    .chatitem.active{
-      background:rgba(212,175,55,.16);
-      border-color:rgba(184,134,11,.35);
-    }
-    .chatitem .title{font-weight:800;font-size:.8rem;color:#1e1e2e}
-    .chatitem .meta{font-size:.65rem;color:#5a5a7a;margin-top:2px}
-
-    /* Chat */
     .chat-container{display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden}
     .chat-messages{
       flex:1;overflow-y:auto;padding:15px;min-height:0;
@@ -154,21 +58,22 @@
       margin:10px 10px 0 10px;
     }
 
-    .message{margin-bottom:10px;display:flex;flex-direction:column;position:relative}
+    .message{margin-bottom:10px;display:flex;flex-direction:column}
     .message.user{align-items:flex-end}
     .message.assistant{align-items:flex-start}
     .message.system{align-items:center}
+
     .message .content-wrapper{display:flex;flex-direction:column;align-items:flex-start;max-width:80%}
     .message.user .content-wrapper{align-items:flex-end}
     .message .content{
       padding:6px 12px;border-radius:15px;color:#1e1e2e;
-      font-size:0.85em;line-height:1.3;
+      font-size:0.9em;line-height:1.35;
       box-shadow:0 2px 8px rgba(255,255,255,.5),0 2px 5px rgba(0,0,0,.05);
       border:1px solid rgba(255,215,0,.2);
       word-break:break-word;white-space:pre-wrap;
+      background:rgba(255,255,240,.9);
     }
     .message.user .content{background:rgba(255,255,240,.7)}
-    .message.assistant .content{background:rgba(255,255,240,.9)}
     .message.system .content{background:rgba(249,226,175,.9)}
 
     .copy-under{
@@ -181,11 +86,12 @@
     }
     .copy-under:hover{background:rgba(255,255,255,.8);box-shadow:0 4px 8px rgba(0,0,0,.15)}
     .copy-under.copied{background:#4CAF50;color:#fff;box-shadow:none}
+
     .message .time{font-size:.55em;color:#5a5a7a;margin-top:3px;margin-left:5px}
 
-    /* Input */
     .input-frame{
-      margin:0 10px 10px 10px;height:4.2cm;
+      margin:0 10px 10px 10px;
+      height:4.2cm;
       background:rgba(255,255,255,.6);
       border:1px solid rgba(255,215,0,.3);
       border-radius:20px;backdrop-filter:blur(5px);
@@ -194,14 +100,15 @@
       box-shadow:0 8px 20px rgba(255,255,255,.3),0 2px 5px rgba(0,0,0,.05);
       flex-shrink:0;
     }
-    .input-row{display:flex;align-items:center;gap:5px}
+    .input-row{display:flex;align-items:center;gap:6px}
     .input-row textarea{
-      flex:1;padding:6px 10px;border-radius:20px;
+      flex:1;padding:8px 12px;border-radius:20px;
       border:2px solid rgba(212,175,55,.6);
-      background:#fff;color:#1e1e2e;font-size:.85em;
+      background:#fff;color:#1e1e2e;font-size:.9em;
       resize:none;font-family:inherit;
       box-shadow:inset 0 2px 5px rgba(0,0,0,.03),0 2px 5px rgba(255,215,0,.1);
-      height:1.8cm;min-height:1.8cm;
+      height:1.9cm;min-height:1.9cm;
+      outline:none;
     }
     .circle-send{
       width:38px;height:38px;border-radius:50%;
@@ -213,75 +120,93 @@
     }
     .circle-send:hover{background:rgba(212,175,55,.1);transform:scale(1.05)}
 
-    /* Bottom controls (clip + deep think + provider) */
-    .bottom-row{
-      display:flex;align-items:center;justify-content:flex-start;
-      gap:10px;padding:0 6px 2px 6px;
-      color:#2d2d3a;
-      flex-wrap:wrap;
-    }
+    .bottom-row{display:flex;align-items:center;justify-content:flex-start;padding:0 6px 2px 6px}
     .icon-btn{
       background:none;border:none;
-      font-size:1.1rem;
+      font-size:1.15rem;
       cursor:pointer;color:#2d2d3a;
       transition:.2s;padding:0 3px;user-select:none;
     }
     .icon-btn:hover{color:#D4AF37}
-    .pill{
-      display:inline-flex;align-items:center;gap:8px;
-      border:1px solid rgba(212,175,55,.35);
-      background:rgba(255,255,255,.65);
-      padding:4px 10px;border-radius:999px;
-      font-size:.72rem;font-weight:800;
+
+    /* Drawer (hidden menu) */
+    .drawer-backdrop{
+      position:fixed;inset:0;background:rgba(0,0,0,.22);
+      display:none;z-index:50;
+    }
+    .drawer-backdrop.show{display:block}
+    .drawer{
+      position:fixed;top:0;left:0;height:100vh;width:280px;
+      background:rgba(255,255,255,.93);
+      backdrop-filter:blur(12px);
+      border-right:1px solid rgba(212,175,55,.22);
+      box-shadow:12px 0 40px rgba(0,0,0,.12);
+      transform:translateX(-100%);
+      transition:.22s;
+      z-index:60;
+      display:flex;flex-direction:column;
+    }
+    .drawer.show{transform:translateX(0)}
+    .drawer-head{
+      padding:10px 10px 8px 10px;
+      display:flex;align-items:center;justify-content:space-between;
+      border-bottom:1px solid rgba(212,175,55,.2);
       user-select:none;
     }
-    .dot{
-      width:8px;height:8px;border-radius:999px;background:#999;
-      display:inline-block;
+    .drawer-title{font-weight:800;font-size:.85rem}
+    .drawer-close{
+      width:34px;height:34px;border-radius:12px;
+      border:1px solid rgba(212,175,55,.5);
+      background:rgba(255,255,255,.9);
+      cursor:pointer;
     }
-    .dot.on{background:#22c55e} /* green */
-    .dot.off{background:#9ca3af} /* gray */
 
-    /* Blink loader message */
-    .blink{font-weight:800;letter-spacing:2px}
+    /* small new chat box with + */
+    .newchat-mini{
+      width:44px;height:44px;border-radius:14px;
+      border:2px solid #D4AF37;
+      background:rgba(255,255,255,.95);
+      box-shadow:0 4px 10px rgba(212,175,55,.14);
+      cursor:pointer;
+      display:flex;align-items:center;justify-content:center;
+      font-size:1.4rem;font-weight:900;color:#1e1e2e;
+      margin:10px 10px 4px 10px;
+      user-select:none;
+      transition:.2s;
+    }
+    .newchat-mini:hover{background:rgba(212,175,55,.12);transform:translateY(-1px)}
 
+    .chatlist{padding:6px 8px 12px 8px;overflow:auto;flex:1}
+    .chatitem{
+      padding:10px 10px;border-radius:14px;
+      border:1px solid rgba(212,175,55,.18);
+      background:rgba(255,255,255,.68);
+      margin:8px 4px;cursor:pointer;
+      transition:.15s;user-select:none;
+    }
+    .chatitem:hover{background:rgba(212,175,55,.10)}
+    .chatitem.active{
+      background:rgba(212,175,55,.16);
+      border-color:rgba(184,134,11,.35);
+    }
+    .chatitem .title{font-weight:800;font-size:.8rem}
+    .chatitem .meta{font-size:.65rem;color:#5a5a7a;margin-top:2px}
+
+    /* Loader */
+    .blink{font-weight:900;letter-spacing:2px}
   </style>
 </head>
 
 <body>
   <div class="app">
     <div class="topbar">
-      <div class="left-top">
-        <button class="hamburger" id="openDrawer" title="Menu">
-          <div class="lines"><span></span><span></span><span></span></div>
-        </button>
-        <div class="brand">AMMAR//i\\CADEMY</div>
-      </div>
-
-      <div class="model-selector">
-        <select id="modelSelect">
-          <option value="gpt-5-nano">GPT-5 Nano</option>
-          <option value="claude-opus-4">Claude Opus 4</option>
-          <option value="gemini-2.0-pro">Gemini 2.0 Pro</option>
-          <option value="deepseek-r1" selected>DeepSeek R1</option>
-        </select>
-      </div>
+      <button class="hamburger" id="openDrawer" title="Menu">
+        <div class="lines"><span></span><span></span><span></span></div>
+      </button>
+      <div class="brand">AMMAR//i\\CADEMY</div>
+      <div class="spacer"></div>
     </div>
 
-    <!-- Drawer -->
-    <div class="drawer-backdrop" id="drawerBackdrop"></div>
-    <aside class="drawer" id="drawer">
-      <div class="drawer-head">
-        <div class="drawer-title">Chats</div>
-        <button class="drawer-close" id="closeDrawer" title="Close">✕</button>
-      </div>
-
-      <button class="newchat-btn" id="newChatBtn">＋ New Chat</button>
-
-      <div class="chatlist" id="chatList"></div>
-    </aside>
-
-    <!-- Chat -->
     <div class="chat-container">
       <div class="chat-messages" id="chatMessages"></div>
 
@@ -291,304 +216,348 @@
           <button class="circle-send" id="sendBtn" type="button">↑</button>
         </div>
 
-        <!-- Bottom controls row -->
         <div class="bottom-row">
           <button class="icon-btn" id="uploadBtn" title="Upload">📎</button>
-
-          <div class="pill" title="Auto DeepThink">
-            <span>التفكير العميق</span>
-            <span class="dot off" id="deepDot"></span>
-          </div>
-
-          <div class="pill" title="External Provider">
-            <span>مزود خارجي</span>
-            <span class="dot on" id="providerDot"></span>
-          </div>
-
           <input type="file" id="fileInput" style="display:none" />
         </div>
       </div>
     </div>
   </div>
 
+  <!-- Drawer -->
+  <div class="drawer-backdrop" id="drawerBackdrop"></div>
+  <aside class="drawer" id="drawer">
+    <div class="drawer-head">
+      <div class="drawer-title">Chats</div>
+      <button class="drawer-close" id="closeDrawer" title="Close">✕</button>
+    </div>
+    <div class="newchat-mini" id="newChatBtn" title="New Chat">+</div>
+    <div class="chatlist" id="chatList"></div>
+  </aside>
+
   <script>
-    // ========= Error Guard =========
-    window.addEventListener("error", (e) => {
-      try { addMessage("system", "❌ JS Error: " + (e.message || "unknown")); } catch(_) {}
-    });
-    window.addEventListener("unhandledrejection", (e) => {
-      try { addMessage("system", "❌ Promise Error: " + (e.reason?.message || e.reason || "unknown")); } catch(_) {}
-    });
+    document.addEventListener("DOMContentLoaded", () => {
 
-    // ========= DOM =========
-    const chatMessages = document.getElementById('chatMessages');
-    const userInput    = document.getElementById('userInput');
-    const sendBtn      = document.getElementById('sendBtn');
-    const modelSelect  = document.getElementById('modelSelect');
+      // DOM
+      const chatMessages = document.getElementById("chatMessages");
+      const userInput    = document.getElementById("userInput");
+      const sendBtn      = document.getElementById("sendBtn");
+      const uploadBtn    = document.getElementById("uploadBtn");
+      const fileInput    = document.getElementById("fileInput");
 
-    const openDrawerBtn = document.getElementById('openDrawer');
-    const closeDrawerBtn = document.getElementById('closeDrawer');
-    const drawerBackdrop = document.getElementById('drawerBackdrop');
-    const drawer = document.getElementById('drawer');
+      const openDrawerBtn = document.getElementById("openDrawer");
+      const closeDrawerBtn = document.getElementById("closeDrawer");
+      const drawerBackdrop = document.getElementById("drawerBackdrop");
+      const drawer = document.getElementById("drawer");
+      const newChatBtn = document.getElementById("newChatBtn");
+      const chatListEl = document.getElementById("chatList");
 
-    const newChatBtn = document.getElementById('newChatBtn');
-    const chatListEl = document.getElementById('chatList');
+      // ===== Copy =====
+      window.copyText = function(element, text){
+        navigator.clipboard.writeText(text).then(()=>{
+          element.classList.add('copied');
+          element.textContent = '✓ copied';
+          setTimeout(()=>{
+            element.classList.remove('copied');
+            element.textContent = 'copy';
+          }, 1200);
+        }).catch(()=> alert('Failed to copy text'));
+      };
 
-    const uploadBtn = document.getElementById('uploadBtn');
-    const fileInput = document.getElementById('fileInput');
-
-    const deepDot = document.getElementById('deepDot');
-    const providerDot = document.getElementById('providerDot');
-
-    // ========= Copy =========
-    window.copyText = function(element, text){
-      navigator.clipboard.writeText(text).then(()=>{
-        element.classList.add('copied');
-        element.textContent = '✓ copied';
-        setTimeout(()=>{
-          element.classList.remove('copied');
-          element.textContent = 'copy';
-        }, 1200);
-      }).catch(()=> alert('Failed to copy text'));
-    };
-
-    function addMessage(role, content){
-      const msgDiv = document.createElement('div');
-      msgDiv.className = `message ${role}`;
-
-      const wrapper = document.createElement('div');
-      wrapper.className = 'content-wrapper';
-
-      const contentDiv = document.createElement('div');
-      contentDiv.className = 'content';
-      contentDiv.textContent = String(content || "");
-
-      wrapper.appendChild(contentDiv);
-
-      const copyUnder = document.createElement('span');
-      copyUnder.className = 'copy-under';
-      copyUnder.textContent = 'copy';
-      copyUnder.onclick = function(){ copyText(this, contentDiv.textContent || contentDiv.innerText); };
-      wrapper.appendChild(copyUnder);
-
-      msgDiv.appendChild(wrapper);
-
-      const timeSpan = document.createElement('span');
-      timeSpan.className = 'time';
-      timeSpan.textContent = new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
-      msgDiv.appendChild(timeSpan);
-
-      chatMessages.appendChild(msgDiv);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-
-      // store in current chat memory
-      if (currentChat && role !== "system_loader") {
-        currentChat.messages.push({ role, content: String(content||""), t: Date.now() });
+      function safeNowTime(){
+        try { return new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}); }
+        catch { return ""; }
       }
-      return msgDiv;
-    }
 
-    // ========= Loader (single blinking dot) =========
-    let blinkTimer = null;
-    function showBlink(){
-      const el = document.createElement('div');
-      el.className = 'message system';
-      const wrapper = document.createElement('div');
-      wrapper.className = 'content-wrapper';
-      const contentDiv = document.createElement('div');
-      contentDiv.className = 'content blink';
-      contentDiv.textContent = "•";
-      wrapper.appendChild(contentDiv);
-      el.appendChild(wrapper);
-      chatMessages.appendChild(el);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
+      function addMessage(role, content, tOverride){
+        const msgDiv = document.createElement("div");
+        msgDiv.className = `message ${role}`;
 
-      let on = true;
-      clearInterval(blinkTimer);
-      blinkTimer = setInterval(()=>{
-        on = !on;
-        contentDiv.textContent = on ? "•" : " ";
-      }, 450);
+        const wrapper = document.createElement("div");
+        wrapper.className = "content-wrapper";
 
-      return el;
-    }
-    function hideBlink(el){
-      clearInterval(blinkTimer);
-      blinkTimer = null;
-      if(el && el.parentNode) el.parentNode.removeChild(el);
-    }
-
-    // ========= Puter ready =========
-    function ensurePuter(){
-      if(!window.puter) return { ok:false, why:"Puter.js لم يتحمّل. تأكد الانترنت وحدث الصفحة." };
-      if(!puter.ai || !puter.ai.chat) return { ok:false, why:"puter.ai.chat غير متوفر حالياً." };
-      return { ok:true };
-    }
-
-    // ========= Auto DeepThink heuristic =========
-    function looksScientificOrDeep(q){
-      const s = String(q||"").toLowerCase();
-      const keys = [
-        "equation","proof","theorem","physics","quantum","relativity","cosmology","black hole","galaxy",
-        "algorithm","complexity","optimize","neural","model","training","gradient","bayes","likelihood","dtw",
-        "معادلة","برهان","اشتقاق","نظرية","فيزياء","كم","نسبية","كون","ثقب","مجرة","خوارزمية","تعقيد","تحسين",
-        "نموذج","تدريب","بايز","احتمال","dtw","ifm2","aic","bic","lensing","κ"
-      ];
-      let hit = 0;
-      for(const k of keys) if(s.includes(k)) hit++;
-      const long = s.length >= 240;
-      const multi = /[\n\r]|(\b1\)|\b2\)|\b3\)|•|- )/.test(s);
-      return hit >= 2 || long || multi;
-    }
-
-    function setDeepDot(on){
-      deepDot.classList.remove("on","off");
-      deepDot.classList.add(on ? "on" : "off");
-    }
-    function setProviderDot(on){
-      providerDot.classList.remove("on","off");
-      providerDot.classList.add(on ? "on" : "off");
-    }
-
-    // ========= In-RAM chat sessions (max 10) =========
-    // NOTE: this is RAM-only; disappears if page refreshes.
-    const chats = [];
-    let currentChat = null;
-
-    function makeTitleFromFirstUserMsg(text){
-      const t = String(text||"").trim().replace(/\s+/g," ");
-      if(!t) return "New chat";
-      return t.length > 26 ? (t.slice(0,26) + "…") : t;
-    }
-
-    function renderChatList(){
-      chatListEl.innerHTML = "";
-      chats.forEach((c, idx) => {
-        const item = document.createElement("div");
-        item.className = "chatitem" + ((currentChat && currentChat.id === c.id) ? " active" : "");
-        const title = document.createElement("div");
-        title.className = "title";
-        title.textContent = c.title;
-
-        const meta = document.createElement("div");
-        meta.className = "meta";
-        meta.textContent = `Messages: ${c.messages.length}`;
-
-        item.appendChild(title);
-        item.appendChild(meta);
-
-        item.onclick = () => {
-          switchToChat(c.id);
-          closeDrawer();
-        };
-
-        chatListEl.appendChild(item);
-      });
-    }
-
-    function switchToChat(id){
-      const found = chats.find(x => x.id === id);
-      if(!found) return;
-      currentChat = found;
-
-      // re-render messages
-      chatMessages.innerHTML = "";
-      for(const m of currentChat.messages){
-        // rebuild bubble
-        const msgDiv = document.createElement('div');
-        msgDiv.className = `message ${m.role}`;
-
-        const wrapper = document.createElement('div');
-        wrapper.className = 'content-wrapper';
-
-        const contentDiv = document.createElement('div');
-        contentDiv.className = 'content';
-        contentDiv.textContent = m.content;
-
+        const contentDiv = document.createElement("div");
+        contentDiv.className = "content";
+        contentDiv.textContent = String(content ?? "");
         wrapper.appendChild(contentDiv);
 
-        const copyUnder = document.createElement('span');
-        copyUnder.className = 'copy-under';
-        copyUnder.textContent = 'copy';
-        copyUnder.onclick = function(){ copyText(this, contentDiv.textContent || contentDiv.innerText); };
+        const copyUnder = document.createElement("span");
+        copyUnder.className = "copy-under";
+        copyUnder.textContent = "copy";
+        copyUnder.onclick = function(){
+          copyText(this, contentDiv.textContent || contentDiv.innerText);
+        };
         wrapper.appendChild(copyUnder);
 
         msgDiv.appendChild(wrapper);
 
-        const timeSpan = document.createElement('span');
-        timeSpan.className = 'time';
-        timeSpan.textContent = new Date(m.t).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+        const timeSpan = document.createElement("span");
+        timeSpan.className = "time";
+        timeSpan.textContent = (tOverride ? new Date(tOverride) : new Date()).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
         msgDiv.appendChild(timeSpan);
 
         chatMessages.appendChild(msgDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        // store into current chat (RAM only)
+        if(currentChat){
+          currentChat.messages.push({ role, content: String(content ?? ""), t: tOverride || Date.now() });
+          // if it's the first user message, set title
+          if(role === "user" && currentChat.title === "New chat"){
+            currentChat.title = makeTitleFromFirstUserMsg(content);
+            renderChatList();
+          }
+        }
+
+        return msgDiv;
       }
-      chatMessages.scrollTop = chatMessages.scrollHeight;
 
-      renderChatList();
-    }
+      // ===== Error guards =====
+      window.addEventListener("error", (e) => {
+        try { addMessage("system", "❌ JS Error: " + (e.message || "unknown")); } catch(_) {}
+      });
+      window.addEventListener("unhandledrejection", (e) => {
+        try { addMessage("system", "❌ Promise Error: " + (e.reason?.message || e.reason || "unknown")); } catch(_) {}
+      });
 
-    function startNewChat(){
-      // If current chat is empty, reuse it
-      if(currentChat && currentChat.messages.length === 0){
-        chatMessages.innerHTML = "";
-        addBootMessage();
+      // ===== Loader (single blinking dot) =====
+      let blinkTimer = null;
+      function showBlink(){
+        const el = document.createElement("div");
+        el.className = "message system";
+        const wrapper = document.createElement("div");
+        wrapper.className = "content-wrapper";
+        const c = document.createElement("div");
+        c.className = "content blink";
+        c.textContent = "•";
+        wrapper.appendChild(c);
+        el.appendChild(wrapper);
+        chatMessages.appendChild(el);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        let on = true;
+        clearInterval(blinkTimer);
+        blinkTimer = setInterval(()=>{ on=!on; c.textContent = on ? "•" : " "; }, 450);
+        return el;
+      }
+      function hideBlink(el){
+        clearInterval(blinkTimer);
+        blinkTimer = null;
+        if(el && el.parentNode) el.parentNode.removeChild(el);
+      }
+
+      // ===== Drawer =====
+      function openDrawer(){
+        drawer.classList.add("show");
+        drawerBackdrop.classList.add("show");
         renderChatList();
-        return;
+      }
+      function closeDrawer(){
+        drawer.classList.remove("show");
+        drawerBackdrop.classList.remove("show");
+      }
+      openDrawerBtn.addEventListener("click", openDrawer);
+      closeDrawerBtn.addEventListener("click", closeDrawer);
+      drawerBackdrop.addEventListener("click", closeDrawer);
+
+      // ===== Chats (RAM only, max 10) =====
+      const chats = [];
+      let currentChat = null;
+
+      function makeTitleFromFirstUserMsg(text){
+        const t = String(text||"").trim().replace(/\s+/g," ");
+        if(!t) return "New chat";
+        return t.length > 26 ? (t.slice(0,26) + "…") : t;
       }
 
-      // create
-      const id = "chat_" + Math.random().toString(16).slice(2) + "_" + Date.now();
-      const chat = { id, title:"New chat", createdAt: Date.now(), messages: [] };
+      function renderChatList(){
+        chatListEl.innerHTML = "";
+        chats.forEach((c) => {
+          const item = document.createElement("div");
+          item.className = "chatitem" + ((currentChat && currentChat.id === c.id) ? " active" : "");
+          const title = document.createElement("div");
+          title.className = "title";
+          title.textContent = c.title;
 
-      // add to front
-      chats.unshift(chat);
+          const meta = document.createElement("div");
+          meta.className = "meta";
+          meta.textContent = `Messages: ${c.messages.length}`;
 
-      // keep only 10 chats
-      while(chats.length > 10) chats.pop();
+          item.appendChild(title);
+          item.appendChild(meta);
 
-      currentChat = chat;
+          item.onclick = () => {
+            switchToChat(c.id);
+            closeDrawer();
+          };
 
-      chatMessages.innerHTML = "";
-      addBootMessage();
-      renderChatList();
-    }
-
-    function addBootMessage(){
-      // avoid storing as loader/system history spam
-      const msgDiv = document.createElement('div');
-      msgDiv.className = `message system`;
-
-      const wrapper = document.createElement('div');
-      wrapper.className = 'content-wrapper';
-
-      const contentDiv = document.createElement('div');
-      contentDiv.className = 'content';
-      contentDiv.textContent = "Welcome to the infinite space! ✨";
-
-      wrapper.appendChild(contentDiv);
-
-      const copyUnder = document.createElement('span');
-      copyUnder.className = 'copy-under';
-      copyUnder.textContent = 'copy';
-      copyUnder.onclick = function(){ copyText(this, contentDiv.textContent || contentDiv.innerText); };
-      wrapper.appendChild(copyUnder);
-
-      msgDiv.appendChild(wrapper);
-
-      const timeSpan = document.createElement('span');
-      timeSpan.className = 'time';
-      timeSpan.textContent = new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
-      msgDiv.appendChild(timeSpan);
-
-      chatMessages.appendChild(msgDiv);
-
-      // store it
-      if(currentChat){
-        currentChat.messages.push({ role:"system", content:"Welcome to the infinite space! ✨", t: Date.now() });
+          chatListEl.appendChild(item);
+        });
       }
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
 
-    // ========= Drawer controls =========
-    function openDrawer(){
-      d
+      function switchToChat(id){
+        const found = chats.find(x => x.id === id);
+        if(!found) return;
+        currentChat = found;
+
+        chatMessages.innerHTML = "";
+        for(const m of currentChat.messages){
+          // rebuild message without re-storing
+          const msgDiv = document.createElement("div");
+          msgDiv.className = `message ${m.role}`;
+
+          const wrapper = document.createElement("div");
+          wrapper.className = "content-wrapper";
+
+          const contentDiv = document.createElement("div");
+          contentDiv.className = "content";
+          contentDiv.textContent = m.content;
+          wrapper.appendChild(contentDiv);
+
+          const copyUnder = document.createElement("span");
+          copyUnder.className = "copy-under";
+          copyUnder.textContent = "copy";
+          copyUnder.onclick = function(){ copyText(this, contentDiv.textContent || contentDiv.innerText); };
+          wrapper.appendChild(copyUnder);
+
+          msgDiv.appendChild(wrapper);
+
+          const timeSpan = document.createElement("span");
+          timeSpan.className = "time";
+          timeSpan.textContent = new Date(m.t).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+          msgDiv.appendChild(timeSpan);
+
+          chatMessages.appendChild(msgDiv);
+        }
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        renderChatList();
+      }
+
+      function newChat(){
+        // if current chat empty, reuse
+        if(currentChat && currentChat.messages.length === 0){
+          chatMessages.innerHTML = "";
+          addBoot();
+          renderChatList();
+          return;
+        }
+
+        const id = "chat_" + Math.random().toString(16).slice(2) + "_" + Date.now();
+        const c = { id, title:"New chat", createdAt: Date.now(), messages: [] };
+
+        chats.unshift(c);
+        while(chats.length > 10) chats.pop();
+
+        currentChat = c;
+
+        chatMessages.innerHTML = "";
+        addBoot();
+        renderChatList();
+      }
+
+      function addBoot(){
+        // store boot as system message
+        addMessage("system", "Welcome to the infinite space! ✨");
+        userInput.focus();
+      }
+
+      newChatBtn.addEventListener("click", () => {
+        newChat();
+        closeDrawer();
+      });
+
+      // ===== Upload (minimal: show file name) =====
+      uploadBtn.addEventListener("click", ()=>{
+        fileInput.value = "";
+        fileInput.click();
+      });
+      fileInput.addEventListener("change", ()=>{
+        const f = fileInput.files && fileInput.files[0];
+        if(!f) return;
+        addMessage("user", `📎 [File selected] ${f.name}`);
+        addMessage("system", "⚠️ File reading غير مفعّل بهالنسخة (واجهة فقط).");
+      });
+
+      // ===== Provider check =====
+      function ensurePuter(){
+        if(!window.puter) return { ok:false, why:"Puter.js لم يتحمّل. تأكد الانترنت وحدّث الصفحة." };
+        if(!puter.ai || !puter.ai.chat) return { ok:false, why:"puter.ai.chat غير متوفر حالياً." };
+        return { ok:true };
+      }
+
+      // ===== Hidden routing (no UI) =====
+      function looksScientificOrDeep(q){
+        const s = String(q||"").toLowerCase();
+        const keys = [
+          "equation","proof","theorem","physics","quantum","relativity","cosmology","black hole","galaxy",
+          "algorithm","complexity","optimize","neural","model","training","gradient","bayes","likelihood","dtw",
+          "معادلة","برهان","اشتقاق","نظرية","فيزياء","كم","نسبية","كون","ثقب","مجرة","خوارزمية","تعقيد","تحسين",
+          "نموذج","تدريب","بايز","احتمال","dtw","ifm2","aic","bic","lensing","κ"
+        ];
+        let hit = 0;
+        for(const k of keys) if(s.includes(k)) hit++;
+        const long = s.length >= 240;
+        const multi = /[\n\r]|(\b1\)|\b2\)|\b3\)|•|- )/.test(s);
+        return hit >= 2 || long || multi;
+      }
+
+      async function callProvider(prompt, model, maxTokens, timeoutMs){
+        const p = puter.ai.chat(prompt, { model, max_tokens: maxTokens, temperature: 0.7 });
+        return await Promise.race([
+          p,
+          new Promise((_,rej)=>setTimeout(()=>rej(new Error("timeout")), timeoutMs))
+        ]);
+      }
+
+      async function chatWithAI(userText){
+        const deep = looksScientificOrDeep(userText);
+
+        const styleDeep =
+`أجب بالعربية بدقة ووضوح وبشكل تفصيلي ومنظم.
+- عرّف المفاهيم أولاً
+- ثم اشرح خطوة بخطوة
+- ثم أعطِ مثالاً إن أمكن
+- ثم خلاصة قصيرة في النهاية.`;
+        const styleGeneral =
+`أجب بالعربية بإيجاز ووضوح.`;
+
+        const prompt = `${userText}\n\nSTYLE:\n${deep ? styleDeep : styleGeneral}`;
+
+        const maxTok = userText.length < 450 ? 650 : 1100;
+
+        const primary = deep ? "deepseek-r1" : "gpt-5-nano";
+        const fallback = "deepseek-r1";
+
+        try{
+          return await callProvider(prompt, primary, maxTok, 12000);
+        }catch(e1){
+          try{
+            return await callProvider(prompt, primary, Math.max(320, Math.floor(maxTok * 0.6)), 8000);
+          }catch(e2){
+            return await callProvider(prompt, fallback, Math.max(450, Math.floor(maxTok * 0.8)), 12000);
+          }
+        }
+      }
+
+      // ===== Send wiring =====
+      let sending = false;
+
+      async function onSend(){
+        if(sending) return;
+
+        const text = (userInput.value || "").trim();
+        if(!text) return;
+
+        const ok = ensurePuter();
+        if(!ok.ok){
+          addMessage("system", "❌ " + ok.why);
+          return;
+        }
+
+        sending = true;
+        sendBtn.disabled = true;
+
+        addMessage("user", text);
+        userInput.value = "";
+
+        const loader = showBl
