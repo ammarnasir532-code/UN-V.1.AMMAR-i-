@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>AMMAR//i\\CADEMY - Cosmic AI</title>
 
+  <!-- Optional Provider (if available) -->
   <script src="https://js.puter.com/v2/"></script>
 
   <style>
@@ -26,8 +27,7 @@
       display:flex;align-items:center;justify-content:space-between;
       padding:6px 10px;
       border-bottom:1px solid rgba(212,175,55,.2);
-      user-select:none;
-      flex-shrink:0;
+      user-select:none;flex-shrink:0;
     }
     .hamburger{
       width:38px;height:38px;border-radius:12px;
@@ -41,13 +41,12 @@
     .hamburger:hover{background:rgba(212,175,55,.12);transform:translateY(-1px)}
     .hamburger .lines{width:16px;height:12px;display:flex;flex-direction:column;justify-content:space-between}
     .hamburger .lines span{height:2px;border-radius:2px;background:#1e1e2e;opacity:.85}
-
     .brand{
       font-weight:800;color:#D4AF37;font-size:.95rem;letter-spacing:.4px;
       white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
       text-align:center;flex:1;
     }
-    .topbar .spacer{width:38px;height:38px} /* keep brand centered */
+    .topbar .spacer{width:38px;height:38px}
 
     .chat-container{display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden}
     .chat-messages{
@@ -62,7 +61,6 @@
     .message.user{align-items:flex-end}
     .message.assistant{align-items:flex-start}
     .message.system{align-items:center}
-
     .message .content-wrapper{display:flex;flex-direction:column;align-items:flex-start;max-width:80%}
     .message.user .content-wrapper{align-items:flex-end}
     .message .content{
@@ -86,12 +84,10 @@
     }
     .copy-under:hover{background:rgba(255,255,255,.8);box-shadow:0 4px 8px rgba(0,0,0,.15)}
     .copy-under.copied{background:#4CAF50;color:#fff;box-shadow:none}
-
     .message .time{font-size:.55em;color:#5a5a7a;margin-top:3px;margin-left:5px}
 
     .input-frame{
-      margin:0 10px 10px 10px;
-      height:4.2cm;
+      margin:0 10px 10px 10px;height:4.2cm;
       background:rgba(255,255,255,.6);
       border:1px solid rgba(255,215,0,.3);
       border-radius:20px;backdrop-filter:blur(5px);
@@ -129,7 +125,7 @@
     }
     .icon-btn:hover{color:#D4AF37}
 
-    /* Drawer (hidden menu) */
+    /* Drawer */
     .drawer-backdrop{
       position:fixed;inset:0;background:rgba(0,0,0,.22);
       display:none;z-index:50;
@@ -160,8 +156,6 @@
       background:rgba(255,255,255,.9);
       cursor:pointer;
     }
-
-    /* small new chat box with + */
     .newchat-mini{
       width:44px;height:44px;border-radius:14px;
       border:2px solid #D4AF37;
@@ -175,7 +169,6 @@
       transition:.2s;
     }
     .newchat-mini:hover{background:rgba(212,175,55,.12);transform:translateY(-1px)}
-
     .chatlist{padding:6px 8px 12px 8px;overflow:auto;flex:1}
     .chatitem{
       padding:10px 10px;border-radius:14px;
@@ -224,7 +217,6 @@
     </div>
   </div>
 
-  <!-- Drawer -->
   <div class="drawer-backdrop" id="drawerBackdrop"></div>
   <aside class="drawer" id="drawer">
     <div class="drawer-head">
@@ -236,182 +228,52 @@
   </aside>
 
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
+    // --- absolutely-safe boot: no DOMContentLoaded dependency ---
+    (function boot(){
+      function $(id){ return document.getElementById(id); }
 
-      // DOM
-      const chatMessages = document.getElementById("chatMessages");
-      const userInput    = document.getElementById("userInput");
-      const sendBtn      = document.getElementById("sendBtn");
-      const uploadBtn    = document.getElementById("uploadBtn");
-      const fileInput    = document.getElementById("fileInput");
+      function run(){
+        const chatMessages = $("chatMessages");
+        const userInput    = $("userInput");
+        const sendBtn      = $("sendBtn");
+        const uploadBtn    = $("uploadBtn");
+        const fileInput    = $("fileInput");
 
-      const openDrawerBtn = document.getElementById("openDrawer");
-      const closeDrawerBtn = document.getElementById("closeDrawer");
-      const drawerBackdrop = document.getElementById("drawerBackdrop");
-      const drawer = document.getElementById("drawer");
-      const newChatBtn = document.getElementById("newChatBtn");
-      const chatListEl = document.getElementById("chatList");
+        const openDrawerBtn = $("openDrawer");
+        const closeDrawerBtn = $("closeDrawer");
+        const drawerBackdrop = $("drawerBackdrop");
+        const drawer = $("drawer");
+        const newChatBtn = $("newChatBtn");
+        const chatListEl = $("chatList");
 
-      // ===== Copy =====
-      window.copyText = function(element, text){
-        navigator.clipboard.writeText(text).then(()=>{
-          element.classList.add('copied');
-          element.textContent = '✓ copied';
-          setTimeout(()=>{
-            element.classList.remove('copied');
-            element.textContent = 'copy';
-          }, 1200);
-        }).catch(()=> alert('Failed to copy text'));
-      };
-
-      function safeNowTime(){
-        try { return new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}); }
-        catch { return ""; }
-      }
-
-      function addMessage(role, content, tOverride){
-        const msgDiv = document.createElement("div");
-        msgDiv.className = `message ${role}`;
-
-        const wrapper = document.createElement("div");
-        wrapper.className = "content-wrapper";
-
-        const contentDiv = document.createElement("div");
-        contentDiv.className = "content";
-        contentDiv.textContent = String(content ?? "");
-        wrapper.appendChild(contentDiv);
-
-        const copyUnder = document.createElement("span");
-        copyUnder.className = "copy-under";
-        copyUnder.textContent = "copy";
-        copyUnder.onclick = function(){
-          copyText(this, contentDiv.textContent || contentDiv.innerText);
-        };
-        wrapper.appendChild(copyUnder);
-
-        msgDiv.appendChild(wrapper);
-
-        const timeSpan = document.createElement("span");
-        timeSpan.className = "time";
-        timeSpan.textContent = (tOverride ? new Date(tOverride) : new Date()).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
-        msgDiv.appendChild(timeSpan);
-
-        chatMessages.appendChild(msgDiv);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-
-        // store into current chat (RAM only)
-        if(currentChat){
-          currentChat.messages.push({ role, content: String(content ?? ""), t: tOverride || Date.now() });
-          // if it's the first user message, set title
-          if(role === "user" && currentChat.title === "New chat"){
-            currentChat.title = makeTitleFromFirstUserMsg(content);
-            renderChatList();
-          }
+        if(!chatMessages || !userInput || !sendBtn){
+          // if DOM not ready yet, retry quickly
+          return setTimeout(run, 30);
         }
 
-        return msgDiv;
-      }
+        // Copy
+        window.copyText = function(element, text){
+          navigator.clipboard.writeText(text).then(()=>{
+            element.classList.add('copied');
+            element.textContent = '✓ copied';
+            setTimeout(()=>{ element.classList.remove('copied'); element.textContent='copy'; }, 1200);
+          }).catch(()=> alert('Failed to copy text'));
+        };
 
-      // ===== Error guards =====
-      window.addEventListener("error", (e) => {
-        try { addMessage("system", "❌ JS Error: " + (e.message || "unknown")); } catch(_) {}
-      });
-      window.addEventListener("unhandledrejection", (e) => {
-        try { addMessage("system", "❌ Promise Error: " + (e.reason?.message || e.reason || "unknown")); } catch(_) {}
-      });
+        function timeStr(ts){
+          return new Date(ts || Date.now()).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+        }
 
-      // ===== Loader (single blinking dot) =====
-      let blinkTimer = null;
-      function showBlink(){
-        const el = document.createElement("div");
-        el.className = "message system";
-        const wrapper = document.createElement("div");
-        wrapper.className = "content-wrapper";
-        const c = document.createElement("div");
-        c.className = "content blink";
-        c.textContent = "•";
-        wrapper.appendChild(c);
-        el.appendChild(wrapper);
-        chatMessages.appendChild(el);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-
-        let on = true;
-        clearInterval(blinkTimer);
-        blinkTimer = setInterval(()=>{ on=!on; c.textContent = on ? "•" : " "; }, 450);
-        return el;
-      }
-      function hideBlink(el){
-        clearInterval(blinkTimer);
-        blinkTimer = null;
-        if(el && el.parentNode) el.parentNode.removeChild(el);
-      }
-
-      // ===== Drawer =====
-      function openDrawer(){
-        drawer.classList.add("show");
-        drawerBackdrop.classList.add("show");
-        renderChatList();
-      }
-      function closeDrawer(){
-        drawer.classList.remove("show");
-        drawerBackdrop.classList.remove("show");
-      }
-      openDrawerBtn.addEventListener("click", openDrawer);
-      closeDrawerBtn.addEventListener("click", closeDrawer);
-      drawerBackdrop.addEventListener("click", closeDrawer);
-
-      // ===== Chats (RAM only, max 10) =====
-      const chats = [];
-      let currentChat = null;
-
-      function makeTitleFromFirstUserMsg(text){
-        const t = String(text||"").trim().replace(/\s+/g," ");
-        if(!t) return "New chat";
-        return t.length > 26 ? (t.slice(0,26) + "…") : t;
-      }
-
-      function renderChatList(){
-        chatListEl.innerHTML = "";
-        chats.forEach((c) => {
-          const item = document.createElement("div");
-          item.className = "chatitem" + ((currentChat && currentChat.id === c.id) ? " active" : "");
-          const title = document.createElement("div");
-          title.className = "title";
-          title.textContent = c.title;
-
-          const meta = document.createElement("div");
-          meta.className = "meta";
-          meta.textContent = `Messages: ${c.messages.length}`;
-
-          item.appendChild(title);
-          item.appendChild(meta);
-
-          item.onclick = () => {
-            switchToChat(c.id);
-            closeDrawer();
-          };
-
-          chatListEl.appendChild(item);
-        });
-      }
-
-      function switchToChat(id){
-        const found = chats.find(x => x.id === id);
-        if(!found) return;
-        currentChat = found;
-
-        chatMessages.innerHTML = "";
-        for(const m of currentChat.messages){
-          // rebuild message without re-storing
+        function addMessage(role, content, ts){
           const msgDiv = document.createElement("div");
-          msgDiv.className = `message ${m.role}`;
+          msgDiv.className = `message ${role}`;
 
           const wrapper = document.createElement("div");
           wrapper.className = "content-wrapper";
 
           const contentDiv = document.createElement("div");
           contentDiv.className = "content";
-          contentDiv.textContent = m.content;
+          contentDiv.textContent = String(content ?? "");
           wrapper.appendChild(contentDiv);
 
           const copyUnder = document.createElement("span");
@@ -424,140 +286,238 @@
 
           const timeSpan = document.createElement("span");
           timeSpan.className = "time";
-          timeSpan.textContent = new Date(m.t).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+          timeSpan.textContent = timeStr(ts);
           msgDiv.appendChild(timeSpan);
 
           chatMessages.appendChild(msgDiv);
-        }
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-        renderChatList();
-      }
+          chatMessages.scrollTop = chatMessages.scrollHeight;
 
-      function newChat(){
-        // if current chat empty, reuse
-        if(currentChat && currentChat.messages.length === 0){
-          chatMessages.innerHTML = "";
-          addBoot();
+          // store (RAM only)
+          if(currentChat){
+            currentChat.messages.push({ role, content:String(content??""), t: ts || Date.now() });
+            if(role==="user" && currentChat.title==="New chat"){
+              currentChat.title = makeTitle(String(content||""));
+              renderChatList();
+            }
+          }
+          return msgDiv;
+        }
+
+        // Errors -> visible in chat
+        window.addEventListener("error", (e) => {
+          try { addMessage("system", "❌ JS Error: " + (e.message || "unknown")); } catch(_) {}
+        });
+        window.addEventListener("unhandledrejection", (e) => {
+          try { addMessage("system", "❌ Promise Error: " + (e.reason?.message || e.reason || "unknown")); } catch(_) {}
+        });
+
+        // Loader
+        let blinkTimer = null;
+        function showBlink(){
+          const el = document.createElement("div");
+          el.className = "message system";
+          const wrapper = document.createElement("div");
+          wrapper.className = "content-wrapper";
+          const c = document.createElement("div");
+          c.className = "content blink";
+          c.textContent = "•";
+          wrapper.appendChild(c);
+          el.appendChild(wrapper);
+          chatMessages.appendChild(el);
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+          let on = true;
+          clearInterval(blinkTimer);
+          blinkTimer = setInterval(()=>{ on=!on; c.textContent = on ? "•" : " "; }, 450);
+          return el;
+        }
+        function hideBlink(el){
+          clearInterval(blinkTimer); blinkTimer=null;
+          if(el && el.parentNode) el.parentNode.removeChild(el);
+        }
+
+        // Drawer
+        function openDrawer(){
+          drawer.classList.add("show");
+          drawerBackdrop.classList.add("show");
           renderChatList();
-          return;
+        }
+        function closeDrawer(){
+          drawer.classList.remove("show");
+          drawerBackdrop.classList.remove("show");
+        }
+        openDrawerBtn.addEventListener("click", openDrawer);
+        closeDrawerBtn.addEventListener("click", closeDrawer);
+        drawerBackdrop.addEventListener("click", closeDrawer);
+
+        // Chats (RAM only, max 10)
+        const chats = [];
+        let currentChat = null;
+
+        function makeTitle(text){
+          const t = (text||"").trim().replace(/\s+/g," ");
+          if(!t) return "New chat";
+          return t.length>26 ? t.slice(0,26)+"…" : t;
         }
 
-        const id = "chat_" + Math.random().toString(16).slice(2) + "_" + Date.now();
-        const c = { id, title:"New chat", createdAt: Date.now(), messages: [] };
+        function renderChatList(){
+          chatListEl.innerHTML = "";
+          chats.forEach(c=>{
+            const item = document.createElement("div");
+            item.className = "chatitem" + ((currentChat && currentChat.id===c.id) ? " active" : "");
+            const title = document.createElement("div");
+            title.className="title";
+            title.textContent=c.title;
+            const meta = document.createElement("div");
+            meta.className="meta";
+            meta.textContent=`Messages: ${c.messages.length}`;
+            item.appendChild(title); item.appendChild(meta);
+            item.onclick=()=>{ switchToChat(c.id); closeDrawer(); };
+            chatListEl.appendChild(item);
+          });
+        }
 
-        chats.unshift(c);
-        while(chats.length > 10) chats.pop();
+        function switchToChat(id){
+          const found = chats.find(x=>x.id===id);
+          if(!found) return;
+          currentChat = found;
+          chatMessages.innerHTML = "";
+          for(const m of currentChat.messages){
+            // rebuild without re-storing
+            const msgDiv = document.createElement("div");
+            msgDiv.className = `message ${m.role}`;
+            const wrapper = document.createElement("div");
+            wrapper.className = "content-wrapper";
+            const contentDiv = document.createElement("div");
+            contentDiv.className = "content";
+            contentDiv.textContent = m.content;
+            wrapper.appendChild(contentDiv);
+            const copyUnder = document.createElement("span");
+            copyUnder.className = "copy-under";
+            copyUnder.textContent = "copy";
+            copyUnder.onclick = function(){ copyText(this, contentDiv.textContent || contentDiv.innerText); };
+            wrapper.appendChild(copyUnder);
+            msgDiv.appendChild(wrapper);
+            const timeSpan = document.createElement("span");
+            timeSpan.className = "time";
+            timeSpan.textContent = timeStr(m.t);
+            msgDiv.appendChild(timeSpan);
+            chatMessages.appendChild(msgDiv);
+          }
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+          renderChatList();
+        }
 
-        currentChat = c;
+        function newChat(){
+          if(currentChat && currentChat.messages.length===0){
+            chatMessages.innerHTML="";
+            addMessage("system","Welcome to the infinite space! ✨");
+            renderChatList();
+            return;
+          }
+          const id="chat_"+Math.random().toString(16).slice(2)+"_"+Date.now();
+          const c={id,title:"New chat",createdAt:Date.now(),messages:[]};
+          chats.unshift(c);
+          while(chats.length>10) chats.pop();
+          currentChat=c;
+          chatMessages.innerHTML="";
+          addMessage("system","Welcome to the infinite space! ✨");
+          renderChatList();
+        }
 
-        chatMessages.innerHTML = "";
-        addBoot();
-        renderChatList();
-      }
+        newChatBtn.addEventListener("click", ()=>{ newChat(); closeDrawer(); });
 
-      function addBoot(){
-        // store boot as system message
-        addMessage("system", "Welcome to the infinite space! ✨");
-        userInput.focus();
-      }
+        // Upload (minimal)
+        uploadBtn.addEventListener("click", ()=>{ fileInput.value=""; fileInput.click(); });
+        fileInput.addEventListener("change", ()=>{
+          const f=fileInput.files && fileInput.files[0];
+          if(!f) return;
+          addMessage("user", `📎 [File selected] ${f.name}`);
+          addMessage("system","⚠️ File reading غير مفعّل بهالنسخة (واجهة فقط).");
+        });
 
-      newChatBtn.addEventListener("click", () => {
-        newChat();
-        closeDrawer();
-      });
+        // Provider availability + fallback local responder (SO THE UI ALWAYS WORKS)
+        function puterAvailable(){
+          return !!(window.puter && puter.ai && typeof puter.ai.chat === "function");
+        }
 
-      // ===== Upload (minimal: show file name) =====
-      uploadBtn.addEventListener("click", ()=>{
-        fileInput.value = "";
-        fileInput.click();
-      });
-      fileInput.addEventListener("change", ()=>{
-        const f = fileInput.files && fileInput.files[0];
-        if(!f) return;
-        addMessage("user", `📎 [File selected] ${f.name}`);
-        addMessage("system", "⚠️ File reading غير مفعّل بهالنسخة (واجهة فقط).");
-      });
+        function looksScientificOrDeep(q){
+          const s=String(q||"").toLowerCase();
+          const keys=["equation","proof","theorem","physics","quantum","relativity","cosmology","black hole","galaxy",
+            "algorithm","complexity","optimize","neural","model","training","bayes","likelihood","dtw",
+            "معادلة","برهان","اشتقاق","نظرية","فيزياء","كم","نسبية","كون","ثقب","مجرة","خوارزمية","تعقيد","تحسين",
+            "نموذج","تدريب","بايز","احتمال","dtw","ifm2","aic","bic","lensing","κ"];
+          let hit=0; for(const k of keys) if(s.includes(k)) hit++;
+          const long=s.length>=240;
+          const multi=/[\n\r]|(\b1\)|\b2\)|\b3\)|•|- )/.test(s);
+          return hit>=2 || long || multi;
+        }
 
-      // ===== Provider check =====
-      function ensurePuter(){
-        if(!window.puter) return { ok:false, why:"Puter.js لم يتحمّل. تأكد الانترنت وحدّث الصفحة." };
-        if(!puter.ai || !puter.ai.chat) return { ok:false, why:"puter.ai.chat غير متوفر حالياً." };
-        return { ok:true };
-      }
+        async function callProvider(prompt, model, maxTokens, timeoutMs){
+          const p = puter.ai.chat(prompt, { model, max_tokens:maxTokens, temperature:0.7 });
+          return await Promise.race([
+            p,
+            new Promise((_,rej)=>setTimeout(()=>rej(new Error("timeout")), timeoutMs))
+          ]);
+        }
 
-      // ===== Hidden routing (no UI) =====
-      function looksScientificOrDeep(q){
-        const s = String(q||"").toLowerCase();
-        const keys = [
-          "equation","proof","theorem","physics","quantum","relativity","cosmology","black hole","galaxy",
-          "algorithm","complexity","optimize","neural","model","training","gradient","bayes","likelihood","dtw",
-          "معادلة","برهان","اشتقاق","نظرية","فيزياء","كم","نسبية","كون","ثقب","مجرة","خوارزمية","تعقيد","تحسين",
-          "نموذج","تدريب","بايز","احتمال","dtw","ifm2","aic","bic","lensing","κ"
-        ];
-        let hit = 0;
-        for(const k of keys) if(s.includes(k)) hit++;
-        const long = s.length >= 240;
-        const multi = /[\n\r]|(\b1\)|\b2\)|\b3\)|•|- )/.test(s);
-        return hit >= 2 || long || multi;
-      }
+        async function chatWithAI(userText){
+          // Always respond, provider optional
+          const deep = looksScientificOrDeep(userText);
 
-      async function callProvider(prompt, model, maxTokens, timeoutMs){
-        const p = puter.ai.chat(prompt, { model, max_tokens: maxTokens, temperature: 0.7 });
-        return await Promise.race([
-          p,
-          new Promise((_,rej)=>setTimeout(()=>rej(new Error("timeout")), timeoutMs))
-        ]);
-      }
-
-      async function chatWithAI(userText){
-        const deep = looksScientificOrDeep(userText);
-
-        const styleDeep =
+          const styleDeep =
 `أجب بالعربية بدقة ووضوح وبشكل تفصيلي ومنظم.
 - عرّف المفاهيم أولاً
 - ثم اشرح خطوة بخطوة
 - ثم أعطِ مثالاً إن أمكن
 - ثم خلاصة قصيرة في النهاية.`;
-        const styleGeneral =
-`أجب بالعربية بإيجاز ووضوح.`;
+          const styleGeneral = `أجب بالعربية بإيجاز ووضوح.`;
 
-        const prompt = `${userText}\n\nSTYLE:\n${deep ? styleDeep : styleGeneral}`;
+          const prompt = `${userText}\n\nSTYLE:\n${deep ? styleDeep : styleGeneral}`;
+          const maxTok = userText.length < 450 ? 650 : 1100;
 
-        const maxTok = userText.length < 450 ? 650 : 1100;
+          if(!puterAvailable()){
+            // local fallback so UI never “freezes”
+            return "⚠️ المزود الخارجي غير متاح في هذا المتصفح/البيئة. لكن الواجهة تعمل.\n\nاكتب سؤالك مرة ثانية بعد التأكد أن الصفحة تعمل على HTTPS وأن Puter.js مسموح.";
+          }
 
-        const primary = deep ? "deepseek-r1" : "gpt-5-nano";
-        const fallback = "deepseek-r1";
+          const primary = deep ? "deepseek-r1" : "gpt-5-nano";
+          const fallback = "deepseek-r1";
 
-        try{
-          return await callProvider(prompt, primary, maxTok, 12000);
-        }catch(e1){
           try{
-            return await callProvider(prompt, primary, Math.max(320, Math.floor(maxTok * 0.6)), 8000);
-          }catch(e2){
-            return await callProvider(prompt, fallback, Math.max(450, Math.floor(maxTok * 0.8)), 12000);
+            return await callProvider(prompt, primary, maxTok, 12000);
+          }catch{
+            try{
+              return await callProvider(prompt, primary, Math.max(320, Math.floor(maxTok*0.6)), 8000);
+            }catch{
+              return await callProvider(prompt, fallback, Math.max(450, Math.floor(maxTok*0.8)), 12000);
+            }
           }
         }
-      }
 
-      // ===== Send wiring =====
-      let sending = false;
+        // Send wiring
+        let sending=false;
+        async function onSend(){
+          if(sending) return;
+          const text=(userInput.value||"").trim();
+          if(!text) return;
 
-      async function onSend(){
-        if(sending) return;
+          sending=true;
+          sendBtn.disabled=true;
 
-        const text = (userInput.value || "").trim();
-        if(!text) return;
+          addMessage("user", text);
+          userInput.value="";
 
-        const ok = ensurePuter();
-        if(!ok.ok){
-          addMessage("system", "❌ " + ok.why);
-          return;
-        }
-
-        sending = true;
-        sendBtn.disabled = true;
-
-        addMessage("user", text);
-        userInput.value = "";
-
-        const loader = showBl
+          const loader = showBlink();
+          try{
+            const resp = await chatWithAI(text);
+            hideBlink(loader);
+            addMessage("assistant", resp);
+          }catch(err){
+            hideBlink(loader);
+            addMessage("system","❌ Error: " + (err?.message || String(err)));
+          }finally{
+            sending=false;
+            sendBtn.disabled=false;
+            userInput.focus();
+          }
+        
