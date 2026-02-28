@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>AMMAR//i\\CADEMY - Cosmic AI</title>
 
-  <!-- Optional: Provider (won't break UI if unavailable) -->
+  <!-- Optional: Puter.js provider (UI must work even if this fails) -->
   <script src="https://js.puter.com/v2/"></script>
 
   <style>
@@ -237,9 +237,11 @@
   </aside>
 
   <script>
-    // ---------- state (RAM only, max 10 chats) ----------
+    // ---------------- RAM-only chat memory (max 10) ----------------
     const chats = [];
     let currentChatId = null;
+
+    const $ = (id) => document.getElementById(id);
 
     function newId(){
       return "chat_" + Math.random().toString(16).slice(2) + "_" + Date.now();
@@ -260,17 +262,17 @@
       return chats.find(c => c.id === currentChatId) || null;
     }
 
-    // ---------- DOM helpers ----------
-    const $ = (id) => document.getElementById(id);
-
-    function showSystemError(msg){
-      try { addMessage("system", "❌ " + msg); } catch(_) { /* ignore */ }
+    // ---------------- error visibility ----------------
+    function addSystemError(msg){
+      try { addMessage("system", "❌ " + msg); } catch(_) {}
     }
+    window.addEventListener("error", (e) => addSystemError(e.message || "JS error"));
+    window.addEventListener("unhandledrejection", (e) => {
+      const m = (e.reason && e.reason.message) ? e.reason.message : String(e.reason || "Promise error");
+      addSystemError(m);
+    });
 
-    window.addEventListener("error", (e) => showSystemError(e.message || "JS error"));
-    window.addEventListener("unhandledrejection", (e) => showSystemError((e.reason && e.reason.message) ? e.reason.message : String(e.reason || "Promise error")));
-
-    // ---------- copy ----------
+    // ---------------- copy ----------------
     window.copyText = function(element, text){
       navigator.clipboard.writeText(text).then(()=>{
         element.classList.add('copied');
@@ -279,22 +281,37 @@
       }).catch(()=> alert('Failed to copy text'));
     };
 
-    // ---------- render ----------
+    // ---------------- drawer ----------------
+    function openDrawer(){
+      $("drawer").classList.add("show");
+      $("drawerBackdrop").classList.add("show");
+      renderChatList();
+    }
+    function closeDrawer(){
+      $("drawer").classList.remove("show");
+      $("drawerBackdrop").classList.remove("show");
+    }
+
+    // ---------------- render list/messages ----------------
     function renderChatList(){
       const list = $("chatList");
       list.innerHTML = "";
       chats.forEach(c=>{
         const item = document.createElement("div");
         item.className = "chatitem" + (c.id === currentChatId ? " active" : "");
+
         const t = document.createElement("div");
         t.className = "title";
         t.textContent = c.title;
+
         const m = document.createElement("div");
         m.className = "meta";
         m.textContent = `Messages: ${c.messages.length}`;
+
         item.appendChild(t);
         item.appendChild(m);
         item.onclick = () => { switchChat(c.id); closeDrawer(); };
+
         list.appendChild(item);
       });
     }
@@ -335,18 +352,7 @@
       box.scrollTop = box.scrollHeight;
     }
 
-    // ---------- drawer ----------
-    function openDrawer(){
-      $("drawer").classList.add("show");
-      $("drawerBackdrop").classList.add("show");
-      renderChatList();
-    }
-    function closeDrawer(){
-      $("drawer").classList.remove("show");
-      $("drawerBackdrop").classList.remove("show");
-    }
-
-    // ---------- messages ----------
+    // ---------------- add message ----------------
     function addMessage(role, content){
       const chat = getCurrentChat();
       if(!chat) return;
@@ -354,13 +360,11 @@
       const msg = { role, content: String(content ?? ""), t: Date.now() };
       chat.messages.push(msg);
 
-      // set title on first user message
       if(role === "user" && chat.title === "New chat"){
         chat.title = titleFrom(content);
         renderChatList();
       }
 
-      // add to UI immediately
       const box = $("chatMessages");
 
       const msgDiv = document.createElement("div");
@@ -393,7 +397,7 @@
       return msgDiv;
     }
 
-    // ---------- loader ----------
+    // ---------------- loader dot ----------------
     let blinkTimer = null;
     function showBlink(){
       const box = $("chatMessages");
@@ -425,7 +429,7 @@
       if(el && el.parentNode) el.parentNode.removeChild(el);
     }
 
-    // ---------- provider (optional) ----------
+    // ---------------- provider + retry (2 retries) ----------------
     function puterAvailable(){
       return !!(window.puter && puter.ai && typeof puter.ai.chat === "function");
     }
@@ -444,11 +448,68 @@
     }
 
     async function callProvider(prompt, model, maxTokens, timeoutMs){
-      const p = puter.ai.chat(prompt, { model, max_tokens: maxTokens, temperature: 0.7 });
+      const p = puter.ai.chat(prompt, {
+        model,
+        max_tokens: maxTokens,
+        temperature: 0.7
+      });
       return await Promise.race([
         p,
-        new Promise((_,rej)=>setTimeout(()=>rej(new Error("timeout")), timeoutMs))
+        new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), timeoutMs))
       ]);
+    }
+
+    async function callWithRetry(prompt, model, maxTokens, timeoutMs, retries = 2){
+      let lastErr = null;
+      for(let attempt = 0; attempt <= retries; attempt++){
+        try{
+          const dynTokens = Math.max(240, Math.floor(maxTokens * (attempt === 0 ? 1 : 0.7)));
+          const dynTimeout = attempt === 0 ? timeoutMs : Math.max(5000, Math.floor(timeoutMs * 0.75));
+          return await callProvider(prompt, model, dynTokens, dynTimeout);
+        }catch(e){
+          lastErr = e;
+        }
+      }
+      throw lastErr || new Error("timeout");
+    }
+
+    function localFallbackAnswer(userText){
+      const t = String(userText || "").trim();
+      if(!t) return "اكتب سؤالك حتى أجاوبك.";
+
+      const lower = t.toLowerCase();
+
+      if (/(code|bug|error|html|css|js|javascript|python|api|github|commit|timeout|console)/i.test(lower) ||
+          /برمجة|كود|خطأ|مشكلة|جافاسكربت|بايثون|html|css|github|كوميت|تايم اوت|كونسول/.test(t)) {
+        return [
+          "ما كدرت أوصل للمزوّد الخارجي حالياً، فهنا رد محلي سريع يساعدك:",
+          "",
+          "1) افتح DevTools > Console وشوف أول Error (هو عادة سبب المشكلة).",
+          "2) جرّب تحديث قوي للصفحة (Incognito أو ?v=3).",
+          "3) إذا المشكلة timeout: جرّب سؤال أقصر أو بدّل شبكة/VPN.",
+          "",
+          "إذا ترسل لي نص الخطأ من الـ Console أگدر أحدد السبب بدقة."
+        ].join("\n");
+      }
+
+      if (/(equation|physics|math|proof|theorem|quantum|relativity)/i.test(lower) ||
+          /معادلة|فيزياء|رياضيات|برهان|نظرية|كم|نسبية/.test(t)) {
+        return [
+          "المزوّد الخارجي ما رد حالياً، بس أجاوبك محلياً بشكل منظم:",
+          "",
+          "• وضّح لي: المعطيات + المطلوب + هل تريد اشتقاق لو تفسير.",
+          "• إذا عندك معادلة/نص، انسخها هنا حتى أرتب الحل خطوة بخطوة.",
+          "",
+          "ملاحظة: إذا تحتاج أرقام/مراجع حديثة، لازم اتصال فعّال بالمزوّد أو مصدر إنترنت."
+        ].join("\n");
+      }
+
+      return [
+        "المزوّد الخارجي تأخر/غير متاح حالياً، فهنا رد محلي سريع:",
+        "",
+        "• اشرح لي أكثر شنو تقصد بالضبط (هدفك + القيود).",
+        "• إذا عندك مثال/صورة/نص، ارفعه حتى يكون الجواب أدق."
+      ].join("\n");
     }
 
     async function chatWithAI(userText){
@@ -466,24 +527,21 @@
       const maxTok = userText.length < 450 ? 650 : 1100;
 
       if(!puterAvailable()){
-        return "⚠️ المزود الخارجي غير متاح هنا. الواجهة تعمل، لكن تحتاج بيئة تدعم Puter.ai.";
+        // throw to trigger local fallback path in onSend
+        throw new Error("provider_unavailable");
       }
 
       const primary = deep ? "deepseek-r1" : "gpt-5-nano";
       const fallback = "deepseek-r1";
 
       try{
-        return await callProvider(prompt, primary, maxTok, 12000);
+        return await callWithRetry(prompt, primary, maxTok, 12000, 2);
       }catch{
-        try{
-          return await callProvider(prompt, primary, Math.max(320, Math.floor(maxTok*0.6)), 8000);
-        }catch{
-          return await callProvider(prompt, fallback, Math.max(450, Math.floor(maxTok*0.8)), 12000);
-        }
+        return await callWithRetry(prompt, fallback, Math.max(450, Math.floor(maxTok*0.8)), 12000, 2);
       }
     }
 
-    // ---------- chats ----------
+    // ---------------- chats ----------------
     function createChat(){
       const c = { id: newId(), title: "New chat", createdAt: Date.now(), messages: [] };
       chats.unshift(c);
@@ -500,7 +558,7 @@
       renderChatList();
     }
 
-    // ---------- send ----------
+    // ---------------- send ----------------
     let sending = false;
 
     async function onSend(){
@@ -525,49 +583,7 @@
         addMessage("assistant", resp);
       }catch(err){
         hideBlink(loader);
-        addMessage("system", "Error: " + (err?.message || String(err)));
-      }finally{
-        sending = false;
-        sendBtn.disabled = false;
-        input.focus();
-      }
-    }
+        const m = (err?.message || String(err) || "").toLowerCase();
 
-    // ---------- upload (UI only) ----------
-    function onUpload(){
-      $("fileInput").value = "";
-      $("fileInput").click();
-    }
-    function onFilePicked(){
-      const f = $("fileInput").files && $("fileInput").files[0];
-      if(!f) return;
-      addMessage("user", `📎 [File selected] ${f.name}`);
-      addMessage("system", "⚠️ File reading غير مفعّل بهالنسخة (واجهة فقط).");
-    }
-
-    // ---------- init ----------
-    (function init(){
-      $("openDrawer").addEventListener("click", openDrawer);
-      $("closeDrawer").addEventListener("click", closeDrawer);
-      $("drawerBackdrop").addEventListener("click", closeDrawer);
-
-      $("newChatBtn").addEventListener("click", ()=>{ createChat(); closeDrawer(); });
-
-      $("sendBtn").addEventListener("click", onSend);
-      $("userInput").addEventListener("keydown", (e)=>{
-        if(e.key === "Enter" && !e.shiftKey){
-          e.preventDefault();
-          onSend();
-        }
-      });
-
-      $("uploadBtn").addEventListener("click", onUpload);
-      $("fileInput").addEventListener("change", onFilePicked);
-
-      // start with one chat
-      createChat();
-      $("userInput").focus();
-    })();
-  </script>
-</body>
-</html>
+        if(m.includes("timeout")){
+          addMessag
